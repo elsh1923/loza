@@ -1137,12 +1137,23 @@ CREATE POLICY "Allow public delete attendance" ON public.attendance FOR DELETE U
         function showAlert(message) {
             const modal = document.createElement('div');
             modal.className = 'modal active';
-            modal.innerHTML = `
-                <div class="modal-content">
-                    <p style="margin-bottom: 1.5rem; font-size: 1rem;">${message}</p>
-                    <button class="btn btn-primary" onclick="this.closest('.modal').remove()" style="width: 100%;">እሺ / OK</button>
-                </div>
-            `;
+            const modalContent = document.createElement('div');
+            modalContent.className = 'modal-content';
+            
+            const messageP = document.createElement('p');
+            messageP.style.marginBottom = '1.5rem';
+            messageP.style.fontSize = '1rem';
+            messageP.textContent = message;
+            modalContent.appendChild(messageP);
+
+            const okBtn = document.createElement('button');
+            okBtn.className = 'btn btn-primary';
+            okBtn.style.width = '100%';
+            okBtn.textContent = 'እሺ / OK';
+            okBtn.onclick = () => modal.remove();
+            modalContent.appendChild(okBtn);
+
+            modal.appendChild(modalContent);
             document.body.appendChild(modal);
             modal.addEventListener('click', (e) => {
                 if (e.target === modal) modal.remove();
@@ -1585,22 +1596,38 @@ CREATE POLICY "Allow public delete attendance" ON public.attendance FOR DELETE U
                 tdNum.textContent = index + 1;
                 tr.appendChild(tdNum);
 
-                // Name
+                // Name (Safe DOM construction)
                 const tdName = document.createElement('td');
                 tdName.className = 'student-name';
-                tdName.innerHTML = `
-                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;">
-                        <span>${student.name}</span>
-                        <button class="action-btn delete-btn" onclick="deleteStudent('${student.id}')" title="ተማሪውን ሰርዝ">🗑️</button>
-                    </div>
-                `;
+                
+                const nameWrapper = document.createElement('div');
+                nameWrapper.style.display = 'flex';
+                nameWrapper.style.alignItems = 'center';
+                nameWrapper.style.justifyContent = 'space-between';
+                nameWrapper.style.gap = '0.5rem';
+
+                const nameSpan = document.createElement('span');
+                nameSpan.textContent = student.name;
+
+                const delBtn = document.createElement('button');
+                delBtn.className = 'action-btn delete-btn';
+                delBtn.title = 'ተማሪውን ሰርዝ';
+                delBtn.textContent = '🗑️';
+                delBtn.onclick = () => deleteStudent(student.id);
+
+                nameWrapper.appendChild(nameSpan);
+                nameWrapper.appendChild(delBtn);
+                tdName.appendChild(nameWrapper);
                 tr.appendChild(tdName);
 
-                // Gender
+                // Gender (Safe DOM construction)
                 const tdGender = document.createElement('td');
                 if (student.gender) {
                     const genderClass = student.gender === 'ወንድ' ? 'gender-male' : 'gender-female';
-                    tdGender.innerHTML = `<span class="gender-badge ${genderClass}">${student.gender}</span>`;
+                    const badge = document.createElement('span');
+                    badge.className = `gender-badge ${genderClass}`;
+                    badge.textContent = student.gender;
+                    tdGender.appendChild(badge);
                 } else {
                     tdGender.textContent = '-';
                     tdGender.style.color = 'var(--text-muted)';
