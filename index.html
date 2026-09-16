@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="am">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>የፍኖተ ሎዛ ሰ/ት/ቤት የመዝሙር ጥናት አቴንዳንስ መከታተያ 2017 ዓ.ም</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fc;
+            --bg-card: #ffffff;
+            --text-primary: #1a202c;
+            --text-secondary: #4a5568;
+            --text-muted: #a0aec0;
+            --accent: #667eea;
+            --accent-dark: #5568d3;
+            --border: #e2e8f0;
+            --success: #48bb78;
+            --warning: #ed8936;
+            --danger: #f56565;
+            --present: #48bb78;
+            --absent: #f56565;
+            --leave: #f6ad55;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        .dark {
+            --bg-primary: #1a202c;
+            --bg-secondary: #2d3748;
+            --bg-card: #2d3748;
+            --text-primary: #f7fafc;
+            --text-secondary: #e2e8f0;
+            --text-muted: #a0aec0;
+            --accent: #7f9cf5;
+            --accent-dark: #667eea;
+            --border: #4a5568;
+            --shadow: rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans Ethiopic', 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: background-color 0.3s ease;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px var(--shadow);
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: white;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.95rem;
+        }
+
+        .current-date-display {
+            text-align: center;
+            margin-top: 0.75rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            display: inline-block;
+            color: white;
+            font-weight: 500;
+        }
+
+        .controls {
+            background: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px var(--shadow);
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+        }
+
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            font-size: 15px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Noto Sans Ethiopic', 'Inter', sans-serif;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(72, 187, 120, 0.4);
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        input[type="text"], input[type="number"], select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 16px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Noto Sans Ethiopic', 'Inter', sans-serif;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .search-box {
+            margin-top: 1rem;
+        }
+
+        .search-box input {
+            padding: 0.875rem 1rem;
+            padding-left: 2.5rem;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23a0aec0'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: 0.75rem center;
+            background-size: 1.25rem;
+        }
+
+        .gender-badge {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .gender-male {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+        }
+
+        .gender-female {
+            background: rgba(236, 72, 153, 0.2);
+            color: #ec4899;
+        }
+
+        .table-container {
+            background: var(--bg-card);
+            border-radius: 12px;
+            box-shadow: 0 2px 12px var(--shadow);
+            overflow-x: auto;
+            border: 1px solid var(--border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        th {
+            background: var(--bg-secondary);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        th.date-header {
+            text-align: center;
+            min-width: 80px;
+            cursor: pointer;
+        }
+
+        th.date-header:hover {
+            background: var(--border);
+        }
+
+        td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tr:hover {
+            background: var(--bg-secondary);
+        }
+
+        .attendance-cell {
+            text-align: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .attendance-cell.present {
+            background: rgba(72, 187, 120, 0.2);
+            color: var(--present);
+            font-weight: 600;
+        }
+
+        .attendance-cell.absent {
+            background: rgba(245, 101, 101, 0.2);
+            color: var(--absent);
+            font-weight: 600;
+        }
+
+        .attendance-cell.leave {
+            background: rgba(246, 173, 85, 0.2);
+            color: var(--leave);
+            font-weight: 600;
+        }
+
+        .attendance-cell:hover {
+            opacity: 0.8;
+        }
+
+        .student-name {
+            font-weight: 500;
+            min-width: 200px;
+        }
+
+        .student-number {
+            color: var(--text-muted);
+            min-width: 60px;
+        }
+
+        .total-cell {
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .total-row {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            font-weight: 700;
+        }
+
+        .total-row td {
+            border-top: 3px solid var(--accent);
+            color: var(--accent);
+            font-size: 1.1rem;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px var(--shadow);
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px var(--shadow);
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
+            padding: 0.4rem 0.8rem;
+            font-size: 13px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .delete-btn {
+            background: var(--danger);
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background: #e53e3e;
+        }
+
+        .today-btn {
+            background: var(--accent);
+            color: white;
+            padding: 0.5rem 1rem;
+            font-size: 13px;
+            margin-top: 0.5rem;
+        }
+
+        .today-btn:hover {
+            background: var(--accent-dark);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.25rem;
+            }
+
+            header .container > div {
+                flex-direction: column !important;
+                text-align: center;
+            }
+
+            header img {
+                width: 60px !important;
+                height: 60px !important;
+            }
+
+            .controls-grid {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                font-size: 14px;
+            }
+
+            th, td {
+                padding: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 1.5rem; margin-bottom: 1rem;">
+                <img src="https://pfst.cf2.poecdn.net/base/image/aceb48651ff651be74a8d0cabf372467c78311134794dd4b5b49d207d9d67fee?w=400&h=400"
+                     alt="Finote Loza Logo"
+                     style="width: 80px; height: 80px; border-radius: 50%; border: 3px solid rgba(255, 255, 255, 0.9); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);">
+                <div>
+                    <h1 style="margin: 0;">የፍኖተ ሎዛ ሰ/ት/ቤት የመዝሙር ጥናት አቴንዳንስ መከታተያ 2017 ዓ.ም</h1>
+                    <p class="subtitle" style="margin: 0;">Finote Loza Church Hymn Study Attendance Tracker 2017 E.C.</p>
+                    <div style="text-align: center; margin-top: 0.75rem;">
+                        <span class="current-date-display" id="currentEthiopianDate">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Stats -->
+        <div class="stats" id="stats"></div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <div class="controls-grid">
+                <button class="btn btn-primary" onclick="showAddStudentModal()">+ አዲስ ተማሪ ጨምር</button>
+                <button class="btn btn-primary" onclick="showAddDateModal()">+ አዲስ ቀን ጨምር</button>
+                <button class="btn btn-success" onclick="document.getElementById('excelUpload').click()">📤 Excel ጫን / Upload</button>
+                <button class="btn btn-secondary" onclick="downloadTemplate()">📋 ቅጥያ / Template</button>
+                <button class="btn btn-success" onclick="exportToExcel()">📊 Excel አውርድ</button>
+                <button class="btn btn-secondary" onclick="clearAllData()">🗑️ ሁሉንም አጽዳ</button>
+                <input type="file" id="excelUpload" accept=".xlsx,.xls,.csv" style="display: none;" onchange="handleExcelUpload(event)">
+            </div>
+            <div style="display: flex; gap: 1.5rem; margin-top: 1rem; justify-content: center; flex-wrap: wrap; padding: 0.75rem; background: var(--bg-secondary); border-radius: 8px;">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="font-size: 1.2rem; color: var(--present); font-weight: 600;">✓</span>
+                    <span style="color: var(--text-secondary);">ገቢ / Present</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="font-size: 1.2rem; color: var(--absent); font-weight: 600;">✗</span>
+                    <span style="color: var(--text-secondary);">ቀር / Absent</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="font-size: 1.2rem; color: var(--leave); font-weight: 600;">ፍ</span>
+                    <span style="color: var(--text-secondary);">ፍቃድ / Leave</span>
+                </div>
+            </div>
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="ስም ፈልግ / Search by name..." oninput="filterStudents()">
+            </div>
+        </div>
+
+        <!-- Attendance Table -->
+        <div class="table-container">
+            <table id="attendanceTable">
+                <thead>
+                    <tr id="headerRow">
+                        <th class="student-number">#</th>
+                        <th class="student-name">ስም / Name</th>
+                        <th>ጾታ / Gender</th>
+                        <th class="total-cell">ድምር / Total</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Add Student Modal -->
+    <div class="modal" id="addStudentModal">
+        <div class="modal-content">
+            <h2 class="modal-title">አዲስ ተማሪ ጨምር</h2>
+            <div class="form-group">
+                <label>ስም / Name</label>
+                <input type="text" id="studentName" placeholder="ተማሪውን/ዋን ስም ያስገቡ">
+            </div>
+            <div class="form-group">
+                <label>ጾታ / Gender</label>
+                <select id="studentGender">
+                    <option value="">ይምረጡ / Select</option>
+                    <option value="ወንድ">ወንድ / Male</option>
+                    <option value="ሴት">ሴት / Female</option>
+                </select>
+            </div>
+            <div class="controls-grid">
+                <button class="btn btn-primary" onclick="addStudent()">ጨምር</button>
+                <button class="btn btn-secondary" onclick="closeModal('addStudentModal')">ሰርዝ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Date Modal -->
+    <div class="modal" id="addDateModal">
+        <div class="modal-content">
+            <h2 class="modal-title">አዲስ ቀን ጨምር (የኢትዮጵያ ቀን)</h2>
+            <div class="form-group">
+                <label>ወር / Month</label>
+                <select id="ethMonth">
+                    <option value="1">መስከረም</option>
+                    <option value="2">ጥቅምት</option>
+                    <option value="3">ኅዳር</option>
+                    <option value="4">ታኅሣሥ</option>
+                    <option value="5">ጥር</option>
+                    <option value="6">የካቲት</option>
+                    <option value="7">መጋቢት</option>
+                    <option value="8">ሚያዝያ</option>
+                    <option value="9">ግንቦት</option>
+                    <option value="10">ሰኔ</option>
+                    <option value="11">ኃምሌ</option>
+                    <option value="12">ነሐሴ</option>
+                    <option value="13">ጳጉሜ</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>ቀን / Day (1-30)</label>
+                <input type="number" id="ethDay" min="1" max="30" value="1">
+            </div>
+            <div class="form-group">
+                <label>ዓመት / Year</label>
+                <input type="number" id="ethYear" value="2017">
+            </div>
+            <button class="btn today-btn" onclick="setTodayDate()">📅 የዛሬን ቀን አስገባ / Use Today's Date</button>
+            <div class="controls-grid" style="margin-top: 1rem;">
+                <button class="btn btn-primary" onclick="addDate()">ጨምር</button>
+                <button class="btn btn-secondary" onclick="closeModal('addDateModal')">ሰርዝ</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Ethiopian Calendar Functions
+        const ethiopianMonths = [
+            'መስከረም', 'ጥቅምት', 'ኅዳር', 'ታኅሣሥ', 'ጥር', 'የካቲት',
+            'መጋቢት', 'ሚያዝያ', 'ግንቦት', 'ሰኔ', 'ኃምሌ', 'ነሐሴ', 'ጳጉሜ'
+        ];
+
+        const ethiopianDays = ['እሑድ', 'ሰኞ', 'ማክሰኞ', 'ረቡዕ', 'ሐሙስ', 'ዓርብ', 'ቅዳሜ'];
+
+        // Convert Gregorian to Ethiopian date (with 2-day correction)
+        function gregorianToEthiopian(gYear, gMonth, gDay) {
+            // Create date and subtract 2 days for correction
+            const date = new Date(gYear, gMonth - 1, gDay);
+            date.setDate(date.getDate() - 2);
+
+            const correctedYear = date.getFullYear();
+            const correctedMonth = date.getMonth() + 1;
+            const correctedDay = date.getDate();
+
+            // Ethiopian New Year calculation
+            let ethYear;
+            let newYearDay = 11;
+
+            // Check if previous Gregorian year was a leap year
+            const prevGregYear = correctedMonth < 9 || (correctedMonth === 9 && correctedDay < 11)
+                ? correctedYear - 1
+                : correctedYear;
+            if ((prevGregYear % 4 === 0 && prevGregYear % 100 !== 0) || prevGregYear % 400 === 0) {
+                newYearDay = 12;
+            }
+
+            // Determine Ethiopian year
+            if (correctedMonth < 9 || (correctedMonth === 9 && correctedDay < newYearDay)) {
+                ethYear = correctedYear - 8;
+            } else {
+                ethYear = correctedYear - 7;
+            }
+
+            // Calculate start of Ethiopian year
+            const ethNewYearGreg = new Date(
+                correctedMonth < 9 || (correctedMonth === 9 && correctedDay < newYearDay)
+                    ? correctedYear - 1
+                    : correctedYear,
+                8,
+                newYearDay
+            );
+
+            // Days since Ethiopian new year
+            const diffDays = Math.floor((date - ethNewYearGreg) / (1000 * 60 * 60 * 24));
+
+            // Calculate Ethiopian month and day
+            let ethMonth = Math.floor(diffDays / 30) + 1;
+            let ethDay = (diffDays % 30) + 1;
+
+            // Handle Pagume (13th month)
+            if (ethMonth > 13) {
+                ethMonth = 13;
+            }
+
+            // Pagume has only 5 or 6 days
+            if (ethMonth === 13) {
+                const pagumeDays = ((ethYear + 1) % 4 === 0) ? 6 : 5;
+                if (ethDay > pagumeDays) {
+                    ethMonth = 1;
+                    ethDay = ethDay - pagumeDays;
+                    ethYear += 1;
+                }
+            }
+
+            return { year: ethYear, month: ethMonth, day: ethDay };
+        }
+
+        // Get current Ethiopian date
+        function getCurrentEthiopianDate() {
+            const now = new Date();
+            return gregorianToEthiopian(now.getFullYear(), now.getMonth() + 1, now.getDate());
+        }
+
+        // Update current date display
+        function updateCurrentDateDisplay() {
+            const ethDate = getCurrentEthiopianDate();
+            const now = new Date();
+            now.setDate(now.getDate() - 2);
+            const dayOfWeek = ethiopianDays[now.getDay()];
+            const display = `${dayOfWeek}፣ ${ethiopianMonths[ethDate.month - 1]} ${ethDate.day}፣ ${ethDate.year} ዓ.ም`;
+            document.getElementById('currentEthiopianDate').textContent = display;
+        }
+
+        // Set today's date in modal
+        function setTodayDate() {
+            const ethDate = getCurrentEthiopianDate();
+            document.getElementById('ethMonth').value = ethDate.month;
+            document.getElementById('ethDay').value = ethDate.day;
+            document.getElementById('ethYear').value = ethDate.year;
+        }
+
+        function formatEthiopianDate(month, day) {
+            return `${ethiopianMonths[month - 1]} ${day}`;
+        }
+
+        // Dark mode detection
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+
+        // IndexedDB Storage
+        const DB_NAME = 'HymnAttendanceDB';
+        const DB_VERSION = 1;
+        let db;
+
+        function initDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => {
+                    db = request.result;
+                    resolve(db);
+                };
+                request.onupgradeneeded = (event) => {
+                    const database = event.target.result;
+                    if (!database.objectStoreNames.contains('data')) {
+                        database.createObjectStore('data', { keyPath: 'key' });
+                    }
+                };
+            });
+        }
+
+        async function saveData(key, value) {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(['data'], 'readwrite');
+                const store = transaction.objectStore('data');
+                const request = store.put({ key, value });
+                request.onsuccess = () => resolve();
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        async function loadData(key, defaultValue) {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(['data'], 'readonly');
+                const store = transaction.objectStore('data');
+                const request = store.get(key);
+                request.onsuccess = () => resolve(request.result ? request.result.value : defaultValue);
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        // State
+        let appState = {
+            students: [],
+            dates: [],
+            attendance: {}
+        };
+
+        let searchTerm = '';
+
+        // Load state from DB
+        async function loadState() {
+            appState.students = await loadData('students', []);
+            appState.dates = await loadData('dates', []);
+            appState.attendance = await loadData('attendance', {});
+        }
+
+        // Save state to DB
+        async function saveState() {
+            await saveData('students', appState.students);
+            await saveData('dates', appState.dates);
+            await saveData('attendance', appState.attendance);
+        }
+
+        // Search functionality
+        function filterStudents() {
+            searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+            renderTable();
+        }
+
+        // Modal Functions
+        function showAddStudentModal() {
+            document.getElementById('addStudentModal').classList.add('active');
+            document.getElementById('studentName').value = '';
+            document.getElementById('studentGender').value = '';
+            document.getElementById('studentName').focus();
+        }
+
+        function showAddDateModal() {
+            document.getElementById('addDateModal').classList.add('active');
+            setTodayDate();
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Custom Alert
+        function showAlert(message) {
+            const modal = document.createElement('div');
+            modal.className = 'modal active';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <p style="margin-bottom: 1.5rem;">${message}</p>
+                    <button class="btn btn-primary" onclick="this.closest('.modal').remove()">እሺ / OK</button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) modal.remove();
+            });
+        }
+
+        // Custom Confirm
+        function showConfirm(message, onConfirm) {
+            const modal = document.createElement('div');
+            modal.className = 'modal active';
+            const modalContent = document.createElement('div');
+            modalContent.className = 'modal-content';
+
+            const messageP = document.createElement('p');
+            messageP.style.marginBottom = '1.5rem';
+            messageP.textContent = message;
+            modalContent.appendChild(messageP);
+
+            const buttonsDiv = document.createElement('div');
+            buttonsDiv.className = 'controls-grid';
+
+            const yesBtn = document.createElement('button');
+            yesBtn.className = 'btn btn-primary';
+            yesBtn.textContent = 'አዎ / Yes';
+            yesBtn.onclick = () => {
+                modal.remove();
+                onConfirm();
+            };
+
+            const noBtn = document.createElement('button');
+            noBtn.className = 'btn btn-secondary';
+            noBtn.textContent = 'አይ / No';
+            noBtn.onclick = () => modal.remove();
+
+            buttonsDiv.appendChild(yesBtn);
+            buttonsDiv.appendChild(noBtn);
+            modalContent.appendChild(buttonsDiv);
+            modal.appendChild(modalContent);
+
+            document.body.appendChild(modal);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) modal.remove();
+            });
+        }
+
+        // Add Student
+        async function addStudent() {
+            const name = document.getElementById('studentName').value.trim();
+            const gender = document.getElementById('studentGender').value;
+            if (!name) {
+                showAlert('እባክዎን ስም ያስገቡ / Please enter a name');
+                return;
+            }
+
+            appState.students.push({ id: Date.now(), name: name, gender: gender });
+            await saveState();
+
+            closeModal('addStudentModal');
+            renderTable();
+        }
+
+        // Handle Excel Upload
+        async function handleExcelUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            try {
+                const data = await file.arrayBuffer();
+                const workbook = XLSX.read(data);
+                const sheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[sheetName];
+                const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+                if (jsonData.length === 0) {
+                    showAlert('Excel ፋይሉ ባዶ ነው / The Excel file is empty');
+                    event.target.value = '';
+                    return;
+                }
+
+                // Find name and gender columns
+                const headerRow = jsonData[0] || [];
+                let nameColIndex = -1;
+                let genderColIndex = -1;
+
+                // Search for name column
+                for (let i = 0; i < headerRow.length; i++) {
+                    const header = String(headerRow[i] || '').toLowerCase().trim();
+                    if (header.includes('ስም') || header.includes('name') || header === 'student' || header === 'ተማሪ') {
+                        nameColIndex = i;
+                    }
+                    if (header.includes('ጾታ') || header.includes('gender') || header.includes('sex')) {
+                        genderColIndex = i;
+                    }
+                }
+
+                // If no name column header found, assume first column is names
+                if (nameColIndex === -1) {
+                    nameColIndex = 0;
+                }
+
+                let addedCount = 0;
+                const existingNames = new Set(appState.students.map(s => s.name.toLowerCase().trim()));
+
+                // Process rows (skip header if it looks like a header)
+                const startRow = (nameColIndex >= 0 && String(headerRow[nameColIndex] || '').toLowerCase().match(/ስም|name|student|ተማሪ/)) ? 1 : 0;
+
+                for (let i = startRow; i < jsonData.length; i++) {
+                    const row = jsonData[i];
+                    if (!row || row.length === 0) continue;
+
+                    const name = String(row[nameColIndex] || '').trim();
+                    if (!name || name.length === 0) continue;
+
+                    // Skip if already exists
+                    if (existingNames.has(name.toLowerCase())) continue;
+
+                    // Determine gender
+                    let gender = '';
+                    if (genderColIndex !== -1 && row[genderColIndex]) {
+                        const genderVal = String(row[genderColIndex]).toLowerCase().trim();
+                        if (genderVal.includes('ወንድ') || genderVal.includes('male') || genderVal === 'm' || genderVal === 'ወ') {
+                            gender = 'ወንድ';
+                        } else if (genderVal.includes('ሴት') || genderVal.includes('female') || genderVal === 'f' || genderVal === 'ሴ') {
+                            gender = 'ሴት';
+                        }
+                    }
+
+                    appState.students.push({
+                        id: Date.now() + addedCount,
+                        name: name,
+                        gender: gender
+                    });
+
+                    existingNames.add(name.toLowerCase());
+                    addedCount++;
+                }
+
+                await saveState();
+                renderTable();
+
+                if (addedCount > 0) {
+                    showAlert(`${addedCount} ተማሪዎች ተጨምረዋል / ${addedCount} students added successfully`);
+                } else {
+                    showAlert('አዲስ ተማሪዎች አልተገኙም (ሁሉም አስቀድመው ሊኖሩ ይችላሉ) / No new students found (they may already exist)');
+                }
+
+            } catch (error) {
+                console.error('Error reading Excel:', error);
+                showAlert('Excel ፋይሉን ማንበብ አልተቻለም / Error reading the Excel file. Please make sure it\'s a valid Excel file.');
+            }
+
+            // Reset file input
+            event.target.value = '';
+        }
+
+        // Download Sample Template
+        function downloadTemplate() {
+            const data = [
+                ['ስም / Name', 'ጾታ / Gender'],
+                ['ዮሐንስ ተስፋዬ', 'ወንድ'],
+                ['ማርያም ገብረ', 'ሴት'],
+                ['ዳዊት አበበ', 'ወንድ']
+            ];
+
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            ws['!cols'] = [{ wch: 30 }, { wch: 15 }];
+            XLSX.utils.book_append_sheet(wb, ws, 'Students');
+            XLSX.writeFile(wb, 'student_template.xlsx');
+        }
+
+        // Add Date (Ethiopian)
+        async function addDate() {
+            const month = parseInt(document.getElementById('ethMonth').value);
+            const day = parseInt(document.getElementById('ethDay').value);
+            const year = parseInt(document.getElementById('ethYear').value);
+
+            if (day < 1 || day > 30 || (month === 13 && day > 6)) {
+                showAlert('እባክዎን ትክክለኛ ቀን ያስገቡ / Please enter a valid day');
+                return;
+            }
+
+            const dateKey = `${year}-${month}-${day}`;
+
+            if (appState.dates.some(d => d.key === dateKey)) {
+                showAlert('ይህ ቀን አስቀድሞ ተጨምሯል / This date already exists');
+                return;
+            }
+
+            appState.dates.push({ key: dateKey, year, month, day });
+            appState.dates.sort((a, b) => {
+                if (a.year !== b.year) return a.year - b.year;
+                if (a.month !== b.month) return a.month - b.month;
+                return a.day - b.day;
+            });
+            await saveState();
+
+            closeModal('addDateModal');
+            renderTable();
+        }
+
+        // Toggle Attendance
+        async function toggleAttendance(studentId, dateKey) {
+            const key = `${studentId}_${dateKey}`;
+
+            if (!appState.attendance[key]) {
+                appState.attendance[key] = 'present';
+            } else if (appState.attendance[key] === 'present') {
+                appState.attendance[key] = 'absent';
+            } else if (appState.attendance[key] === 'absent') {
+                appState.attendance[key] = 'leave';
+            } else {
+                delete appState.attendance[key];
+            }
+
+            await saveState();
+            renderTable();
+        }
+
+        // Delete Student
+        async function deleteStudent(studentId) {
+            appState.students = appState.students.filter(s => s.id !== studentId);
+
+            // Clean up attendance records
+            Object.keys(appState.attendance).forEach(key => {
+                if (key.startsWith(studentId + '_')) {
+                    delete appState.attendance[key];
+                }
+            });
+
+            await saveState();
+            renderTable();
+        }
+
+        // Delete Date
+        async function deleteDate(dateKey) {
+            appState.dates = appState.dates.filter(d => d.key !== dateKey);
+
+            // Clean up attendance records
+            Object.keys(appState.attendance).forEach(key => {
+                if (key.endsWith('_' + dateKey)) {
+                    delete appState.attendance[key];
+                }
+            });
+
+            await saveState();
+            renderTable();
+        }
+
+        // Render Table
+        function renderTable() {
+            let students = appState.students;
+            const dates = appState.dates;
+            const attendance = appState.attendance;
+
+            // Apply search filter
+            if (searchTerm) {
+                students = students.filter(s => s.name.toLowerCase().includes(searchTerm));
+            }
+
+            // Update header row
+            const headerRow = document.getElementById('headerRow');
+            headerRow.innerHTML = `
+                <th class="student-number">#</th>
+                <th class="student-name">ስም / Name</th>
+                <th>ጾታ</th>
+            `;
+
+            dates.forEach(dateObj => {
+                const th = document.createElement('th');
+                th.className = 'date-header';
+                th.innerHTML = `
+                    ${formatEthiopianDate(dateObj.month, dateObj.day)}<br>
+                    <small style="font-size: 0.75rem; font-weight: 400;">${dateObj.year} ዓ.ም</small>
+                    <br><button class="action-btn delete-btn" onclick="deleteDate('${dateObj.key}')" style="margin-top: 4px;">🗑️</button>
+                `;
+                headerRow.appendChild(th);
+            });
+
+            const totalTh = document.createElement('th');
+            totalTh.className = 'total-cell';
+            totalTh.textContent = 'ድምር / Total';
+            headerRow.appendChild(totalTh);
+
+            // Update body
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = '';
+
+            if (students.length === 0) {
+                const tr = document.createElement('tr');
+                const td = document.createElement('td');
+                td.colSpan = 3 + dates.length + 1;
+                td.style.textAlign = 'center';
+                td.style.padding = '2rem';
+                td.style.color = 'var(--text-muted)';
+                td.textContent = searchTerm ? 'ምንም ውጤት አልተገኘም / No results found' : 'ምንም ተማሪዎች የሉም / No students yet';
+                tr.appendChild(td);
+                tableBody.appendChild(tr);
+                updateStats();
+                return;
+            }
+
+            // Track totals per date
+            const dateTotals = {};
+            dates.forEach(d => dateTotals[d.key] = 0);
+            let grandTotal = 0;
+
+            students.forEach((student, index) => {
+                const tr = document.createElement('tr');
+
+                // Number
+                const tdNum = document.createElement('td');
+                tdNum.className = 'student-number';
+                tdNum.textContent = index + 1;
+                tr.appendChild(tdNum);
+
+                // Name
+                const tdName = document.createElement('td');
+                tdName.className = 'student-name';
+                tdName.innerHTML = `
+                    ${student.name}
+                    <div class="action-buttons" style="margin-top: 4px;">
+                        <button class="action-btn delete-btn" onclick="deleteStudent(${student.id})">🗑️ ሰርዝ</button>
+                    </div>
+                `;
+                tr.appendChild(tdName);
+
+                // Gender
+                const tdGender = document.createElement('td');
+                if (student.gender) {
+                    const genderClass = student.gender === 'ወንድ' ? 'gender-male' : 'gender-female';
+                    tdGender.innerHTML = `<span class="gender-badge ${genderClass}">${student.gender}</span>`;
+                } else {
+                    tdGender.textContent = '-';
+                }
+                tr.appendChild(tdGender);
+
+                // Attendance cells
+                let presentCount = 0;
+                dates.forEach(dateObj => {
+                    const key = `${student.id}_${dateObj.key}`;
+                    const status = attendance[key] || '';
+
+                    const td = document.createElement('td');
+                    td.className = `attendance-cell ${status}`;
+                    td.textContent = status === 'present' ? '✓' : status === 'absent' ? '✗' : status === 'leave' ? 'ፍ' : '';
+                    td.onclick = () => toggleAttendance(student.id, dateObj.key);
+                    tr.appendChild(td);
+
+                    if (status === 'present') {
+                        presentCount++;
+                        dateTotals[dateObj.key]++;
+                        grandTotal++;
+                    }
+                });
+
+                // Total
+                const tdTotal = document.createElement('td');
+                tdTotal.className = 'total-cell';
+                tdTotal.textContent = `${presentCount}/${dates.length}`;
+                tr.appendChild(tdTotal);
+
+                tableBody.appendChild(tr);
+            });
+
+            // Add Total Sum Row
+            if (dates.length > 0) {
+                const totalRow = document.createElement('tr');
+                totalRow.className = 'total-row';
+
+                const tdEmpty1 = document.createElement('td');
+                tdEmpty1.textContent = '';
+                totalRow.appendChild(tdEmpty1);
+
+                const tdLabel = document.createElement('td');
+                tdLabel.textContent = 'ጠቅላላ ድምር / Total Sum';
+                tdLabel.style.fontWeight = '700';
+                totalRow.appendChild(tdLabel);
+
+                const tdEmpty2 = document.createElement('td');
+                tdEmpty2.textContent = '';
+                totalRow.appendChild(tdEmpty2);
+
+                dates.forEach(dateObj => {
+                    const td = document.createElement('td');
+                    td.style.textAlign = 'center';
+                    td.style.fontWeight = '700';
+                    td.textContent = dateTotals[dateObj.key];
+                    totalRow.appendChild(td);
+                });
+
+                const tdGrandTotal = document.createElement('td');
+                tdGrandTotal.textContent = grandTotal;
+                tdGrandTotal.style.fontWeight = '700';
+                tdGrandTotal.style.fontSize = '1.2rem';
+                totalRow.appendChild(tdGrandTotal);
+
+                tableBody.appendChild(totalRow);
+            }
+
+            updateStats();
+        }
+
+        // Update Stats
+        function updateStats() {
+            const students = appState.students;
+            const dates = appState.dates;
+            const attendance = appState.attendance;
+
+            const totalStudents = students.length;
+            const maleCount = students.filter(s => s.gender === 'ወንድ').length;
+            const femaleCount = students.filter(s => s.gender === 'ሴት').length;
+            const totalPresent = Object.values(attendance).filter(v => v === 'present').length;
+            const totalRecords = totalStudents * dates.length;
+            const attendanceRate = totalRecords > 0 ? ((totalPresent / totalRecords) * 100).toFixed(1) : 0;
+
+            const statsDiv = document.getElementById('stats');
+            statsDiv.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-number">${totalStudents}</div>
+                    <div class="stat-label">ጠቅላላ ተማሪዎች / Total</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" style="color: #3b82f6;">${maleCount}</div>
+                    <div class="stat-label">ወንድ / Male</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" style="color: #ec4899;">${femaleCount}</div>
+                    <div class="stat-label">ሴት / Female</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${attendanceRate}%</div>
+                    <div class="stat-label">የመገኘት መጠን / Rate</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" style="color: var(--success);">${totalPresent}</div>
+                    <div class="stat-label">ጠቅላላ ገቢ / Total Present</div>
+                </div>
+            `;
+        }
+
+        // Export to Excel
+        function exportToExcel() {
+            const students = appState.students;
+            const dates = appState.dates;
+            const attendance = appState.attendance;
+
+            if (students.length === 0) {
+                showAlert('ምንም ተማሪዎች የሉም / No students to export');
+                return;
+            }
+
+            // Prepare data
+            const data = [];
+
+            // Header row
+            const header = ['#', 'ስም / Name', 'ጾታ / Gender'];
+            dates.forEach(dateObj => {
+                header.push(`${formatEthiopianDate(dateObj.month, dateObj.day)} ${dateObj.year}`);
+            });
+            header.push('ድምር / Total');
+            data.push(header);
+
+            // Track totals
+            const dateTotals = {};
+            dates.forEach(d => dateTotals[d.key] = 0);
+            let grandTotal = 0;
+
+            // Student rows
+            students.forEach((student, index) => {
+                const row = [index + 1, student.name, student.gender || '-'];
+                let presentCount = 0;
+
+                dates.forEach(dateObj => {
+                    const key = `${student.id}_${dateObj.key}`;
+                    const status = attendance[key] || '';
+                    row.push(status === 'present' ? '✓' : status === 'absent' ? '✗' : status === 'leave' ? 'ፍ' : '');
+                    if (status === 'present') {
+                        presentCount++;
+                        dateTotals[dateObj.key]++;
+                        grandTotal++;
+                    }
+                });
+
+                row.push(`${presentCount}/${dates.length}`);
+                data.push(row);
+            });
+
+            // Total row
+            const totalRow = ['', 'ጠቅላላ ድምር / Total Sum', ''];
+            dates.forEach(dateObj => {
+                totalRow.push(dateTotals[dateObj.key]);
+            });
+            totalRow.push(grandTotal);
+            data.push(totalRow);
+
+            // Create workbook
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet(data);
+
+            // Set column widths
+            const cols = [{ wch: 5 }, { wch: 30 }, { wch: 12 }];
+            dates.forEach(() => cols.push({ wch: 15 }));
+            cols.push({ wch: 12 });
+            ws['!cols'] = cols;
+
+            XLSX.utils.book_append_sheet(wb, ws, 'Hymn Attendance');
+
+            // Download
+            const filename = `hymn_attendance_2017_${new Date().toISOString().split('T')[0]}.xlsx`;
+            XLSX.writeFile(wb, filename);
+        }
+
+        // Clear All Data
+        function clearAllData() {
+            showConfirm('እርግጠኛ ነዎት ሁሉንም መረጃ መሰረዝ ይፈልጋሉ? / Are you sure you want to delete all data?', async function() {
+                appState.students = [];
+                appState.dates = [];
+                appState.attendance = {};
+                await saveState();
+                renderTable();
+            });
+        }
+
+        // Initialize
+        async function init() {
+            await initDB();
+            await loadState();
+            renderTable();
+            updateCurrentDateDisplay();
+            setInterval(updateCurrentDateDisplay, 60000);
+        }
+
+        init();
+
+        // Close modal on outside click
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
