@@ -11,35 +11,39 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
-            --bg-primary: #ffffff;
-            --bg-secondary: #f8f9fc;
-            --bg-card: #ffffff;
-            --text-primary: #1a202c;
-            --text-secondary: #4a5568;
-            --text-muted: #a0aec0;
-            --accent: #667eea;
-            --accent-dark: #5568d3;
-            --border: #e2e8f0;
-            --success: #48bb78;
-            --warning: #ed8936;
-            --danger: #f56565;
-            --present: #48bb78;
-            --absent: #f56565;
-            --leave: #f6ad55;
-            --shadow: rgba(0, 0, 0, 0.1);
+            --bg-primary: #fffdfa;
+            --bg-secondary: #fef9ee;
+            --bg-card: rgba(255, 255, 255, 0.92);
+            --text-primary: #1c1917;
+            --text-secondary: #57534e;
+            --text-muted: #a8a29e;
+            --accent: #b45309;
+            --accent-dark: #92400e;
+            --accent-gold: #d97706;
+            --accent-light-gold: #fef3c7;
+            --border: #e7e5e4;
+            --success: #16a34a;
+            --warning: #d97706;
+            --danger: #dc2626;
+            --present: #16a34a;
+            --absent: #dc2626;
+            --leave: #d97706;
+            --shadow: rgba(180, 83, 9, 0.08);
         }
 
         .dark {
-            --bg-primary: #1a202c;
-            --bg-secondary: #2d3748;
-            --bg-card: #2d3748;
-            --text-primary: #f7fafc;
-            --text-secondary: #e2e8f0;
-            --text-muted: #a0aec0;
-            --accent: #7f9cf5;
-            --accent-dark: #667eea;
-            --border: #4a5568;
-            --shadow: rgba(0, 0, 0, 0.3);
+            --bg-primary: #1c1917;
+            --bg-secondary: #292524;
+            --bg-card: rgba(41, 37, 36, 0.92);
+            --text-primary: #fafaf9;
+            --text-secondary: #e7e5e4;
+            --text-muted: #a8a29e;
+            --accent: #f59e0b;
+            --accent-dark: #d97706;
+            --accent-gold: #fbbf24;
+            --accent-light-gold: rgba(245, 158, 11, 0.15);
+            --border: #44403c;
+            --shadow: rgba(0, 0, 0, 0.4);
         }
 
         * {
@@ -50,7 +54,7 @@
 
         body {
             font-family: 'Noto Sans Ethiopic', 'Inter', sans-serif;
-            background: linear-gradient(rgba(248, 249, 252, 0.88), rgba(248, 249, 252, 0.94)), url('canaan-landpage.jpg') center/cover fixed no-repeat;
+            background: linear-gradient(rgba(255, 253, 250, 0.90), rgba(254, 249, 238, 0.94)), url('canaan-landpage.jpg') center/cover fixed no-repeat;
             color: var(--text-primary);
             line-height: 1.6;
             min-height: 100vh;
@@ -59,7 +63,7 @@
 
         .dark body,
         html.dark body {
-            background: linear-gradient(rgba(26, 32, 44, 0.90), rgba(26, 32, 44, 0.95)), url('canaan-landpage.jpg') center/cover fixed no-repeat;
+            background: linear-gradient(rgba(28, 25, 23, 0.92), rgba(41, 37, 36, 0.96)), url('canaan-landpage.jpg') center/cover fixed no-repeat;
         }
 
         .container {
@@ -69,28 +73,28 @@
         }
 
         header {
-            background: linear-gradient(135deg, rgba(20, 20, 50, 0.78) 0%, rgba(76, 29, 149, 0.75) 100%), url('canaan-landpage.jpg') center 28%/cover no-repeat;
-            padding: 2.25rem 0;
+            background: linear-gradient(135deg, rgba(217, 119, 6, 0.92) 0%, rgba(180, 83, 9, 0.95) 100%), url('canaan-landpage.jpg') center 28%/cover no-repeat;
+            padding: 2rem 0;
             margin-bottom: 2rem;
-            box-shadow: 0 6px 25px var(--shadow);
+            box-shadow: 0 4px 20px var(--shadow);
             position: relative;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            border-bottom: 2px solid rgba(254, 243, 199, 0.4);
         }
 
         h1 {
             font-size: 1.75rem;
             font-weight: 700;
-            color: white;
+            color: #ffffff;
             text-align: center;
             margin-bottom: 0.5rem;
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
         }
 
         .subtitle {
             text-align: center;
-            color: rgba(255, 255, 255, 0.95);
+            color: #fef3c7;
             font-size: 0.95rem;
-            text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
         }
 
         .header-badges {
@@ -104,11 +108,13 @@
 
         .current-date-display {
             padding: 0.4rem 0.9rem;
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.22);
             border-radius: 20px;
-            color: white;
-            font-weight: 500;
+            color: #ffffff;
+            font-weight: 600;
             font-size: 0.9rem;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
         }
 
         .db-status-badge {
@@ -121,9 +127,9 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
-            background: rgba(0, 0, 0, 0.25);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(0, 0, 0, 0.28);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.35);
         }
 
         .db-status-badge:hover {
@@ -135,25 +141,25 @@
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            background-color: #ecc94b;
+            background-color: #fbbf24;
         }
 
         .db-status-dot.connected {
-            background-color: #48bb78;
-            box-shadow: 0 0 8px #48bb78;
+            background-color: #22c55e;
+            box-shadow: 0 0 8px #22c55e;
         }
 
         .db-status-dot.error {
-            background-color: #f56565;
-            box-shadow: 0 0 8px #f56565;
+            background-color: #ef4444;
+            box-shadow: 0 0 8px #ef4444;
         }
 
         .sync-toast {
             position: fixed;
             bottom: 20px;
             right: 20px;
-            background: #2d3748;
-            color: white;
+            background: #292524;
+            color: #fef3c7;
             padding: 0.75rem 1.25rem;
             border-radius: 8px;
             box-shadow: 0 4px 16px rgba(0,0,0,0.3);
@@ -165,6 +171,7 @@
             transform: translateY(100px);
             opacity: 0;
             transition: all 0.3s ease;
+            border: 1px solid rgba(217, 119, 6, 0.4);
         }
 
         .sync-toast.show {
@@ -176,9 +183,11 @@
             background: var(--bg-card);
             padding: 1.5rem;
             border-radius: 12px;
-            box-shadow: 0 2px 12px var(--shadow);
+            box-shadow: 0 4px 16px var(--shadow);
             margin-bottom: 1.5rem;
             border: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
         }
 
         .controls-grid {
@@ -204,16 +213,15 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, rgba(67, 56, 202, 0.88) 0%, rgba(109, 40, 217, 0.88) 100%), url('canaan-landpage.jpg') center/cover no-repeat;
+            background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
             color: white;
-            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.35);
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 2px 8px rgba(217, 119, 6, 0.35);
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 14px rgba(102, 126, 234, 0.5);
-            filter: brightness(1.08);
+            box-shadow: 0 4px 14px rgba(217, 119, 6, 0.45);
+            background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%);
         }
 
         .btn-success {
@@ -223,7 +231,7 @@
 
         .btn-success:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(72, 187, 120, 0.4);
+            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.4);
         }
 
         .btn-warning {
@@ -264,7 +272,7 @@
         .search-box input {
             padding: 0.875rem 1rem;
             padding-left: 2.5rem;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23a0aec0'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'%3E%3C/path%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23b45309'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'%3E%3C/path%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: 0.75rem center;
             background-size: 1.25rem;
@@ -279,21 +287,23 @@
         }
 
         .gender-male {
-            background: rgba(59, 130, 246, 0.2);
-            color: #3b82f6;
+            background: rgba(59, 130, 246, 0.15);
+            color: #2563eb;
         }
 
         .gender-female {
-            background: rgba(236, 72, 153, 0.2);
-            color: #ec4899;
+            background: rgba(236, 72, 153, 0.15);
+            color: #db2777;
         }
 
         .table-container {
             background: var(--bg-card);
             border-radius: 12px;
-            box-shadow: 0 2px 12px var(--shadow);
+            box-shadow: 0 4px 16px var(--shadow);
             overflow-x: auto;
             border: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
         }
 
         table {
@@ -336,6 +346,7 @@
             cursor: pointer;
             transition: all 0.2s;
             font-weight: 600;
+            color: var(--text-primary);
         }
 
         .date-action-btn:hover {
@@ -367,19 +378,19 @@
         }
 
         .attendance-cell.present {
-            background: rgba(72, 187, 120, 0.2);
+            background: rgba(22, 163, 74, 0.15);
             color: var(--present);
             font-weight: 700;
         }
 
         .attendance-cell.absent {
-            background: rgba(245, 101, 101, 0.2);
+            background: rgba(220, 38, 38, 0.15);
             color: var(--absent);
             font-weight: 700;
         }
 
         .attendance-cell.leave {
-            background: rgba(246, 173, 85, 0.2);
+            background: rgba(217, 119, 6, 0.18);
             color: var(--leave);
             font-weight: 700;
         }
@@ -406,7 +417,7 @@
         }
 
         .total-row {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            background: linear-gradient(135deg, rgba(217, 119, 6, 0.12), rgba(245, 158, 11, 0.15));
             font-weight: 700;
         }
 
@@ -427,9 +438,11 @@
             background: var(--bg-card);
             padding: 1.25rem 1rem;
             border-radius: 12px;
-            box-shadow: 0 2px 12px var(--shadow);
+            box-shadow: 0 4px 16px var(--shadow);
             border: 1px solid var(--border);
             text-align: center;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
         }
 
         .stat-number {
@@ -468,12 +481,14 @@
             width: 90%;
             max-height: 90vh;
             overflow-y: auto;
+            border: 1px solid var(--border);
         }
 
         .modal-title {
             font-size: 1.35rem;
             font-weight: 700;
             margin-bottom: 1.25rem;
+            color: var(--accent);
         }
 
         .form-group {
@@ -508,7 +523,7 @@
         }
 
         .delete-btn:hover {
-            background: #e53e3e;
+            background: #b91c1c;
         }
 
         .today-btn {
@@ -519,9 +534,13 @@
             margin-top: 0.5rem;
         }
 
+        .today-btn:hover {
+            background: var(--accent-dark);
+        }
+
         .sql-code-block {
-            background: #1a202c;
-            color: #a0aec0;
+            background: #1c1917;
+            color: #d6d3d1;
             padding: 1rem;
             border-radius: 8px;
             font-family: monospace;
@@ -530,7 +549,7 @@
             overflow-y: auto;
             white-space: pre;
             margin: 1rem 0;
-            border: 1px solid #4a5568;
+            border: 1px solid #44403c;
         }
 
         @media (max-width: 768px) {
@@ -568,7 +587,7 @@
             <div style="display: flex; align-items: center; justify-content: center; gap: 1.5rem; margin-bottom: 0.5rem;">
                 <img src="https://pfst.cf2.poecdn.net/base/image/aceb48651ff651be74a8d0cabf372467c78311134794dd4b5b49d207d9d67fee?w=400&h=400"
                      alt="Finote Loza Logo"
-                     style="width: 75px; height: 75px; border-radius: 50%; border: 3px solid rgba(255, 255, 255, 0.9); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);">
+                     style="width: 75px; height: 75px; border-radius: 50%; border: 3px solid rgba(254, 243, 199, 0.9); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);">
                 <div>
                     <h1 style="margin: 0;">የፍኖተ ሎዛ ሰ/ት/ቤት የመዝሙር ጥናት አቴንዳንስ መከታተያ 2017 ዓ.ም</h1>
                     <p class="subtitle" style="margin: 0;">Finote Loza Church Hymn Study Attendance Tracker 2017 E.C.</p>
@@ -601,7 +620,7 @@
                 <input type="file" id="excelUpload" accept=".xlsx,.xls,.csv" style="display: none;" onchange="handleExcelUpload(event)">
             </div>
             
-            <div style="display: flex; gap: 1.5rem; margin-top: 1rem; justify-content: center; flex-wrap: wrap; padding: 0.75rem; background: var(--bg-secondary); border-radius: 8px;">
+            <div style="display: flex; gap: 1.5rem; margin-top: 1rem; justify-content: center; flex-wrap: wrap; padding: 0.75rem; background: var(--bg-secondary); border-radius: 8px; border: 1px solid var(--border);">
                 <div style="display: flex; align-items: center; gap: 0.5rem;">
                     <span style="font-size: 1.2rem; color: var(--present); font-weight: 700;">✓</span>
                     <span style="color: var(--text-secondary); font-size: 0.9rem;">ገቢ / Present</span>
@@ -708,7 +727,7 @@
             <h2 class="modal-title">የ Supabase ዳታቤዝ ሁኔታ / Database Status</h2>
             <p id="dbModalStatusDesc" style="margin-bottom: 1rem; color: var(--text-secondary);">ዳታቤዝ ሁኔታን በመፈተሽ ላይ...</p>
             
-            <div style="background: var(--bg-secondary); padding: 1rem; border-radius: 8px; font-size: 0.9rem; margin-bottom: 1rem;">
+            <div style="background: var(--bg-secondary); padding: 1rem; border-radius: 8px; font-size: 0.9rem; margin-bottom: 1rem; border: 1px solid var(--border);">
                 <div><strong>Supabase Project:</strong> <span style="font-family: monospace;">https://sbcqppzmrvkrnbgaodet.supabase.co</span></div>
                 <div style="margin-top: 0.5rem;"><strong>ሁኔታ / Status:</strong> <span id="dbModalStatusDetail">...</span></div>
             </div>
@@ -1731,11 +1750,11 @@ CREATE POLICY "Allow public delete attendance" ON public.attendance FOR DELETE U
                     <div class="stat-label">ጠቅላላ ተማሪዎች / Total</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number" style="color: #3b82f6;">${maleCount}</div>
+                    <div class="stat-number" style="color: #2563eb;">${maleCount}</div>
                     <div class="stat-label">ወንድ / Male</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number" style="color: #ec4899;">${femaleCount}</div>
+                    <div class="stat-number" style="color: #db2777;">${femaleCount}</div>
                     <div class="stat-label">ሴት / Female</div>
                 </div>
                 <div class="stat-card">
