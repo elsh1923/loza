@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --bg-primary: #ffffff;
@@ -66,6 +67,7 @@
             padding: 2rem 0;
             margin-bottom: 2rem;
             box-shadow: 0 4px 20px var(--shadow);
+            position: relative;
         }
 
         h1 {
@@ -82,15 +84,83 @@
             font-size: 0.95rem;
         }
 
-        .current-date-display {
-            text-align: center;
+        .header-badges {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
             margin-top: 0.75rem;
-            padding: 0.5rem 1rem;
+            flex-wrap: wrap;
+        }
+
+        .current-date-display {
+            padding: 0.4rem 0.9rem;
             background: rgba(255, 255, 255, 0.2);
             border-radius: 20px;
-            display: inline-block;
             color: white;
             font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .db-status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.4rem 0.9rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: rgba(0, 0, 0, 0.25);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .db-status-badge:hover {
+            transform: scale(1.03);
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        .db-status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #ecc94b;
+        }
+
+        .db-status-dot.connected {
+            background-color: #48bb78;
+            box-shadow: 0 0 8px #48bb78;
+        }
+
+        .db-status-dot.error {
+            background-color: #f56565;
+            box-shadow: 0 0 8px #f56565;
+        }
+
+        .sync-toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #2d3748;
+            color: white;
+            padding: 0.75rem 1.25rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 0.9rem;
+            z-index: 9999;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .sync-toast.show {
+            transform: translateY(0);
+            opacity: 1;
         }
 
         .controls {
@@ -104,20 +174,24 @@
 
         .controls-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 1rem;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 0.75rem;
             margin-bottom: 1rem;
         }
 
         .btn {
-            padding: 0.75rem 1.5rem;
-            font-size: 15px;
+            padding: 0.75rem 1.25rem;
+            font-size: 14px;
             font-weight: 600;
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             font-family: 'Noto Sans Ethiopic', 'Inter', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
         }
 
         .btn-primary {
@@ -152,10 +226,14 @@
             border: 1px solid var(--border);
         }
 
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+
         input[type="text"], input[type="number"], select {
             width: 100%;
             padding: 0.75rem 1rem;
-            font-size: 16px;
+            font-size: 15px;
             border: 2px solid var(--border);
             border-radius: 8px;
             background: var(--bg-primary);
@@ -187,7 +265,6 @@
             border-radius: 4px;
             font-size: 0.75rem;
             font-weight: 600;
-            margin-left: 0.5rem;
         }
 
         .gender-male {
@@ -216,7 +293,7 @@
 
         th {
             background: var(--bg-secondary);
-            padding: 1rem;
+            padding: 0.85rem 0.75rem;
             text-align: left;
             font-weight: 600;
             border-bottom: 2px solid var(--border);
@@ -227,12 +304,38 @@
 
         th.date-header {
             text-align: center;
-            min-width: 80px;
-            cursor: pointer;
+            min-width: 115px;
+            padding: 0.75rem 0.5rem;
         }
 
-        th.date-header:hover {
-            background: var(--border);
+        .date-header-actions {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            margin-top: 6px;
+        }
+
+        .date-action-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 11px;
+            padding: 2px 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 600;
+        }
+
+        .date-action-btn:hover {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .date-action-btn.del:hover {
+            background: var(--danger);
+            border-color: var(--danger);
         }
 
         td {
@@ -248,28 +351,30 @@
             text-align: center;
             cursor: pointer;
             user-select: none;
+            font-size: 1.1rem;
+            transition: background-color 0.15s;
         }
 
         .attendance-cell.present {
             background: rgba(72, 187, 120, 0.2);
             color: var(--present);
-            font-weight: 600;
+            font-weight: 700;
         }
 
         .attendance-cell.absent {
             background: rgba(245, 101, 101, 0.2);
             color: var(--absent);
-            font-weight: 600;
+            font-weight: 700;
         }
 
         .attendance-cell.leave {
             background: rgba(246, 173, 85, 0.2);
             color: var(--leave);
-            font-weight: 600;
+            font-weight: 700;
         }
 
         .attendance-cell:hover {
-            opacity: 0.8;
+            filter: brightness(0.92);
         }
 
         .student-name {
@@ -279,12 +384,14 @@
 
         .student-number {
             color: var(--text-muted);
-            min-width: 60px;
+            min-width: 50px;
+            text-align: center;
         }
 
         .total-cell {
             font-weight: 600;
             color: var(--accent);
+            text-align: center;
         }
 
         .total-row {
@@ -295,19 +402,19 @@
         .total-row td {
             border-top: 3px solid var(--accent);
             color: var(--accent);
-            font-size: 1.1rem;
+            font-size: 1.05rem;
         }
 
         .stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 1rem;
             margin-bottom: 1.5rem;
         }
 
         .stat-card {
             background: var(--bg-card);
-            padding: 1.5rem;
+            padding: 1.25rem 1rem;
             border-radius: 12px;
             box-shadow: 0 2px 12px var(--shadow);
             border: 1px solid var(--border);
@@ -315,25 +422,26 @@
         }
 
         .stat-number {
-            font-size: 2rem;
+            font-size: 1.85rem;
             font-weight: 700;
             color: var(--accent);
-            margin-bottom: 0.25rem;
+            margin-bottom: 0.2rem;
         }
 
         .stat-label {
             color: var(--text-secondary);
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
 
         .modal {
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(0, 0, 0, 0.65);
             z-index: 1000;
             align-items: center;
             justify-content: center;
+            backdrop-filter: blur(4px);
         }
 
         .modal.active {
@@ -344,15 +452,17 @@
             background: var(--bg-card);
             padding: 2rem;
             border-radius: 16px;
-            box-shadow: 0 8px 32px var(--shadow);
-            max-width: 500px;
+            box-shadow: 0 10px 40px var(--shadow);
+            max-width: 550px;
             width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .modal-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 1.5rem;
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin-bottom: 1.25rem;
         }
 
         .form-group {
@@ -361,19 +471,20 @@
 
         label {
             display: block;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.4rem;
             font-weight: 500;
             color: var(--text-secondary);
+            font-size: 0.9rem;
         }
 
         .action-buttons {
             display: flex;
-            gap: 0.5rem;
+            gap: 0.4rem;
         }
 
         .action-btn {
-            padding: 0.4rem 0.8rem;
-            font-size: 13px;
+            padding: 0.3rem 0.6rem;
+            font-size: 12px;
             border-radius: 6px;
             border: none;
             cursor: pointer;
@@ -397,8 +508,18 @@
             margin-top: 0.5rem;
         }
 
-        .today-btn:hover {
-            background: var(--accent-dark);
+        .sql-code-block {
+            background: #1a202c;
+            color: #a0aec0;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 180px;
+            overflow-y: auto;
+            white-space: pre;
+            margin: 1rem 0;
+            border: 1px solid #4a5568;
         }
 
         @media (max-width: 768px) {
@@ -417,11 +538,11 @@
             }
 
             .controls-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: 1fr 1fr;
             }
 
             table {
-                font-size: 14px;
+                font-size: 13px;
             }
 
             th, td {
@@ -433,15 +554,19 @@
 <body>
     <header>
         <div class="container">
-            <div style="display: flex; align-items: center; justify-content: center; gap: 1.5rem; margin-bottom: 1rem;">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 1.5rem; margin-bottom: 0.5rem;">
                 <img src="https://pfst.cf2.poecdn.net/base/image/aceb48651ff651be74a8d0cabf372467c78311134794dd4b5b49d207d9d67fee?w=400&h=400"
                      alt="Finote Loza Logo"
-                     style="width: 80px; height: 80px; border-radius: 50%; border: 3px solid rgba(255, 255, 255, 0.9); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);">
+                     style="width: 75px; height: 75px; border-radius: 50%; border: 3px solid rgba(255, 255, 255, 0.9); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);">
                 <div>
                     <h1 style="margin: 0;">የፍኖተ ሎዛ ሰ/ት/ቤት የመዝሙር ጥናት አቴንዳንስ መከታተያ 2017 ዓ.ም</h1>
                     <p class="subtitle" style="margin: 0;">Finote Loza Church Hymn Study Attendance Tracker 2017 E.C.</p>
-                    <div style="text-align: center; margin-top: 0.75rem;">
-                        <span class="current-date-display" id="currentEthiopianDate">Loading...</span>
+                    <div class="header-badges">
+                        <span class="current-date-display" id="currentEthiopianDate">Loading date...</span>
+                        <div class="db-status-badge" id="dbStatusBadge" onclick="showDbStatusModal()" title="የዳታቤዝ ሁኔታን ይመልከቱ / Check Database Status">
+                            <span class="db-status-dot" id="dbStatusDot"></span>
+                            <span id="dbStatusText">ዳታቤዝ በማገናኘት ላይ...</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -455,30 +580,36 @@
         <!-- Controls -->
         <div class="controls">
             <div class="controls-grid">
-                <button class="btn btn-primary" onclick="showAddStudentModal()">+ አዲስ ተማሪ ጨምር</button>
-                <button class="btn btn-primary" onclick="showAddDateModal()">+ አዲስ ቀን ጨምር</button>
+                <button class="btn btn-primary" onclick="showAddStudentModal()">➕ አዲስ ተማሪ / Add Person</button>
+                <button class="btn btn-primary" onclick="showAddDateModal()">📅 አዲስ ቀን / Add Date</button>
                 <button class="btn btn-success" onclick="document.getElementById('excelUpload').click()">📤 Excel ጫን / Upload</button>
                 <button class="btn btn-secondary" onclick="downloadTemplate()">📋 ቅጥያ / Template</button>
                 <button class="btn btn-success" onclick="exportToExcel()">📊 Excel አውርድ</button>
+                <button class="btn btn-secondary" onclick="syncFromSupabase(true)">🔄 Cloud ሪፍሬሽ</button>
                 <button class="btn btn-secondary" onclick="clearAllData()">🗑️ ሁሉንም አጽዳ</button>
                 <input type="file" id="excelUpload" accept=".xlsx,.xls,.csv" style="display: none;" onchange="handleExcelUpload(event)">
             </div>
+            
             <div style="display: flex; gap: 1.5rem; margin-top: 1rem; justify-content: center; flex-wrap: wrap; padding: 0.75rem; background: var(--bg-secondary); border-radius: 8px;">
                 <div style="display: flex; align-items: center; gap: 0.5rem;">
-                    <span style="font-size: 1.2rem; color: var(--present); font-weight: 600;">✓</span>
-                    <span style="color: var(--text-secondary);">ገቢ / Present</span>
+                    <span style="font-size: 1.2rem; color: var(--present); font-weight: 700;">✓</span>
+                    <span style="color: var(--text-secondary); font-size: 0.9rem;">ገቢ / Present</span>
                 </div>
                 <div style="display: flex; align-items: center; gap: 0.5rem;">
-                    <span style="font-size: 1.2rem; color: var(--absent); font-weight: 600;">✗</span>
-                    <span style="color: var(--text-secondary);">ቀር / Absent</span>
+                    <span style="font-size: 1.2rem; color: var(--absent); font-weight: 700;">✗</span>
+                    <span style="color: var(--text-secondary); font-size: 0.9rem;">ቀር / Absent</span>
                 </div>
                 <div style="display: flex; align-items: center; gap: 0.5rem;">
-                    <span style="font-size: 1.2rem; color: var(--leave); font-weight: 600;">ፍ</span>
-                    <span style="color: var(--text-secondary);">ፍቃድ / Leave</span>
+                    <span style="font-size: 1.2rem; color: var(--leave); font-weight: 700;">ፍ</span>
+                    <span style="color: var(--text-secondary); font-size: 0.9rem;">ፍቃድ / Leave</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="font-size: 0.85rem; color: var(--text-muted);">ℹ️ ጠቅ ያድርጉ ለመቀያየር / Click cell to toggle</span>
                 </div>
             </div>
+
             <div class="search-box">
-                <input type="text" id="searchInput" placeholder="ስም ፈልግ / Search by name..." oninput="filterStudents()">
+                <input type="text" id="searchInput" placeholder="ስም ፈልግ / Search person by name..." oninput="filterStudents()">
             </div>
         </div>
 
@@ -489,7 +620,7 @@
                     <tr id="headerRow">
                         <th class="student-number">#</th>
                         <th class="student-name">ስም / Name</th>
-                        <th>ጾታ / Gender</th>
+                        <th style="width: 80px;">ጾታ</th>
                         <th class="total-cell">ድምር / Total</th>
                     </tr>
                 </thead>
@@ -502,9 +633,9 @@
     <!-- Add Student Modal -->
     <div class="modal" id="addStudentModal">
         <div class="modal-content">
-            <h2 class="modal-title">አዲስ ተማሪ ጨምር</h2>
+            <h2 class="modal-title">አዲስ ሰው / ተማሪ ጨምር</h2>
             <div class="form-group">
-                <label>ስም / Name</label>
+                <label>ሙሉ ስም / Full Name</label>
                 <input type="text" id="studentName" placeholder="ተማሪውን/ዋን ስም ያስገቡ">
             </div>
             <div class="form-group">
@@ -516,8 +647,8 @@
                 </select>
             </div>
             <div class="controls-grid">
-                <button class="btn btn-primary" onclick="addStudent()">ጨምር</button>
-                <button class="btn btn-secondary" onclick="closeModal('addStudentModal')">ሰርዝ</button>
+                <button class="btn btn-primary" onclick="addStudent()">ጨምር / Save</button>
+                <button class="btn btn-secondary" onclick="closeModal('addStudentModal')">ሰርዝ / Cancel</button>
             </div>
         </div>
     </div>
@@ -554,14 +685,92 @@
             </div>
             <button class="btn today-btn" onclick="setTodayDate()">📅 የዛሬን ቀን አስገባ / Use Today's Date</button>
             <div class="controls-grid" style="margin-top: 1rem;">
-                <button class="btn btn-primary" onclick="addDate()">ጨምር</button>
-                <button class="btn btn-secondary" onclick="closeModal('addDateModal')">ሰርዝ</button>
+                <button class="btn btn-primary" onclick="addDate()">ጨምር / Save</button>
+                <button class="btn btn-secondary" onclick="closeModal('addDateModal')">ሰርዝ / Cancel</button>
             </div>
         </div>
     </div>
 
+    <!-- Database Status & Setup Modal -->
+    <div class="modal" id="dbStatusModal">
+        <div class="modal-content">
+            <h2 class="modal-title">የ Supabase ዳታቤዝ ሁኔታ / Database Status</h2>
+            <p id="dbModalStatusDesc" style="margin-bottom: 1rem; color: var(--text-secondary);">ዳታቤዝ ሁኔታን በመፈተሽ ላይ...</p>
+            
+            <div style="background: var(--bg-secondary); padding: 1rem; border-radius: 8px; font-size: 0.9rem; margin-bottom: 1rem;">
+                <div><strong>Supabase Project:</strong> <span style="font-family: monospace;">https://sbcqppzmrvkrnbgaodet.supabase.co</span></div>
+                <div style="margin-top: 0.5rem;"><strong>ሁኔታ / Status:</strong> <span id="dbModalStatusDetail">...</span></div>
+            </div>
+
+            <div id="dbSetupInstructions" style="display: none;">
+                <p style="font-size: 0.9rem; font-weight: 600; color: var(--warning);">
+                    ⚠️ በ Supabase ዳታቤዝ ውስጥ ሠንጠረዦች (Tables) አልተገኙም ወይም አልተፈጠሩም።
+                </p>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                    በ 10 ሰከንድ ውስጥ ለማዘጋጀት የሚከተለውን SQL ኮድ ኮፒ አድርገው በ <strong>Supabase Dashboard > SQL Editor</strong> ላይ ያሂዱ (Run):
+                </p>
+                <div class="sql-code-block" id="sqlSchemaCode">CREATE TABLE IF NOT EXISTS public.students (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    gender TEXT DEFAULT '',
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.dates (
+    id TEXT PRIMARY KEY,
+    year INT NOT NULL,
+    month INT NOT NULL,
+    day INT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.attendance (
+    id TEXT PRIMARY KEY,
+    student_id TEXT NOT NULL,
+    date_key TEXT NOT NULL,
+    status TEXT NOT NULL,
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.students ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.dates ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.attendance ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow public read students" ON public.students FOR SELECT USING (true);
+CREATE POLICY "Allow public insert students" ON public.students FOR INSERT WITH CHECK (true);
+CREATE POLICY "Allow public update students" ON public.students FOR UPDATE USING (true);
+CREATE POLICY "Allow public delete students" ON public.students FOR DELETE USING (true);
+
+CREATE POLICY "Allow public read dates" ON public.dates FOR SELECT USING (true);
+CREATE POLICY "Allow public insert dates" ON public.dates FOR INSERT WITH CHECK (true);
+CREATE POLICY "Allow public update dates" ON public.dates FOR UPDATE USING (true);
+CREATE POLICY "Allow public delete dates" ON public.dates FOR DELETE USING (true);
+
+CREATE POLICY "Allow public read attendance" ON public.attendance FOR SELECT USING (true);
+CREATE POLICY "Allow public insert attendance" ON public.attendance FOR INSERT WITH CHECK (true);
+CREATE POLICY "Allow public update attendance" ON public.attendance FOR UPDATE USING (true);
+CREATE POLICY "Allow public delete attendance" ON public.attendance FOR DELETE USING (true);</div>
+                
+                <button class="btn btn-primary" onclick="copySqlToClipboard()" style="width: 100%; margin-bottom: 0.5rem;">📋 SQL ኮድ ኮፒ አድርግ / Copy SQL</button>
+            </div>
+
+            <div class="controls-grid" style="margin-top: 1rem;">
+                <button class="btn btn-primary" onclick="testSupabaseConnection()">🔄 እንደገና ፈትሽ / Test Again</button>
+                <button class="btn btn-secondary" onclick="closeModal('dbStatusModal')">ዝጋ / Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sync Toast -->
+    <div class="sync-toast" id="syncToast">
+        <span id="syncToastIcon">☁️</span>
+        <span id="syncToastText">ዳታቤዝ ተዘምኗል</span>
+    </div>
+
     <script>
-        // Ethiopian Calendar Functions
+        // ==========================================
+        // 1. Ethiopian Calendar Functions
+        // ==========================================
         const ethiopianMonths = [
             'መስከረም', 'ጥቅምት', 'ኅዳር', 'ታኅሣሥ', 'ጥር', 'የካቲት',
             'መጋቢት', 'ሚያዝያ', 'ግንቦት', 'ሰኔ', 'ኃምሌ', 'ነሐሴ', 'ጳጉሜ'
@@ -569,9 +778,7 @@
 
         const ethiopianDays = ['እሑድ', 'ሰኞ', 'ማክሰኞ', 'ረቡዕ', 'ሐሙስ', 'ዓርብ', 'ቅዳሜ'];
 
-        // Convert Gregorian to Ethiopian date (with 2-day correction)
         function gregorianToEthiopian(gYear, gMonth, gDay) {
-            // Create date and subtract 2 days for correction
             const date = new Date(gYear, gMonth - 1, gDay);
             date.setDate(date.getDate() - 2);
 
@@ -579,11 +786,9 @@
             const correctedMonth = date.getMonth() + 1;
             const correctedDay = date.getDate();
 
-            // Ethiopian New Year calculation
             let ethYear;
             let newYearDay = 11;
 
-            // Check if previous Gregorian year was a leap year
             const prevGregYear = correctedMonth < 9 || (correctedMonth === 9 && correctedDay < 11)
                 ? correctedYear - 1
                 : correctedYear;
@@ -591,14 +796,12 @@
                 newYearDay = 12;
             }
 
-            // Determine Ethiopian year
             if (correctedMonth < 9 || (correctedMonth === 9 && correctedDay < newYearDay)) {
                 ethYear = correctedYear - 8;
             } else {
                 ethYear = correctedYear - 7;
             }
 
-            // Calculate start of Ethiopian year
             const ethNewYearGreg = new Date(
                 correctedMonth < 9 || (correctedMonth === 9 && correctedDay < newYearDay)
                     ? correctedYear - 1
@@ -607,19 +810,11 @@
                 newYearDay
             );
 
-            // Days since Ethiopian new year
             const diffDays = Math.floor((date - ethNewYearGreg) / (1000 * 60 * 60 * 24));
-
-            // Calculate Ethiopian month and day
             let ethMonth = Math.floor(diffDays / 30) + 1;
             let ethDay = (diffDays % 30) + 1;
 
-            // Handle Pagume (13th month)
-            if (ethMonth > 13) {
-                ethMonth = 13;
-            }
-
-            // Pagume has only 5 or 6 days
+            if (ethMonth > 13) ethMonth = 13;
             if (ethMonth === 13) {
                 const pagumeDays = ((ethYear + 1) % 4 === 0) ? 6 : 5;
                 if (ethDay > pagumeDays) {
@@ -632,13 +827,11 @@
             return { year: ethYear, month: ethMonth, day: ethDay };
         }
 
-        // Get current Ethiopian date
         function getCurrentEthiopianDate() {
             const now = new Date();
             return gregorianToEthiopian(now.getFullYear(), now.getMonth() + 1, now.getDate());
         }
 
-        // Update current date display
         function updateCurrentDateDisplay() {
             const ethDate = getCurrentEthiopianDate();
             const now = new Date();
@@ -648,7 +841,6 @@
             document.getElementById('currentEthiopianDate').textContent = display;
         }
 
-        // Set today's date in modal
         function setTodayDate() {
             const ethDate = getCurrentEthiopianDate();
             document.getElementById('ethMonth').value = ethDate.month;
@@ -672,18 +864,35 @@
             }
         });
 
-        // IndexedDB Storage
+        // ==========================================
+        // 2. Supabase Configuration & Client
+        // ==========================================
+        const SUPABASE_URL = 'https://sbcqppzmrvkrnbgaodet.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_l_rKE1EXaKxHDmmf7VwFtA_xwiqGDls';
+        
+        let supabaseClient = null;
+        let isSupabaseOnline = false;
+
+        if (window.supabase) {
+            try {
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            } catch (err) {
+                console.warn('Supabase initialization error:', err);
+            }
+        }
+
+        // IndexedDB Offline Storage Fallback
         const DB_NAME = 'HymnAttendanceDB';
         const DB_VERSION = 1;
-        let db;
+        let localDb;
 
-        function initDB() {
+        function initIndexedDB() {
             return new Promise((resolve, reject) => {
                 const request = indexedDB.open(DB_NAME, DB_VERSION);
                 request.onerror = () => reject(request.error);
                 request.onsuccess = () => {
-                    db = request.result;
-                    resolve(db);
+                    localDb = request.result;
+                    resolve(localDb);
                 };
                 request.onupgradeneeded = (event) => {
                     const database = event.target.result;
@@ -694,9 +903,10 @@
             });
         }
 
-        async function saveData(key, value) {
+        async function saveLocalData(key, value) {
+            if (!localDb) return;
             return new Promise((resolve, reject) => {
-                const transaction = db.transaction(['data'], 'readwrite');
+                const transaction = localDb.transaction(['data'], 'readwrite');
                 const store = transaction.objectStore('data');
                 const request = store.put({ key, value });
                 request.onsuccess = () => resolve();
@@ -704,9 +914,10 @@
             });
         }
 
-        async function loadData(key, defaultValue) {
+        async function loadLocalData(key, defaultValue) {
+            if (!localDb) return defaultValue;
             return new Promise((resolve, reject) => {
-                const transaction = db.transaction(['data'], 'readonly');
+                const transaction = localDb.transaction(['data'], 'readonly');
                 const store = transaction.objectStore('data');
                 const request = store.get(key);
                 request.onsuccess = () => resolve(request.result ? request.result.value : defaultValue);
@@ -714,7 +925,9 @@
             });
         }
 
-        // State
+        // ==========================================
+        // 3. Application State
+        // ==========================================
         let appState = {
             students: [],
             dates: [],
@@ -723,27 +936,188 @@
 
         let searchTerm = '';
 
-        // Load state from DB
-        async function loadState() {
-            appState.students = await loadData('students', []);
-            appState.dates = await loadData('dates', []);
-            appState.attendance = await loadData('attendance', {});
+        function showSyncToast(text, icon = '☁️') {
+            const toast = document.getElementById('syncToast');
+            document.getElementById('syncToastText').textContent = text;
+            document.getElementById('syncToastIcon').textContent = icon;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
         }
 
-        // Save state to DB
-        async function saveState() {
-            await saveData('students', appState.students);
-            await saveData('dates', appState.dates);
-            await saveData('attendance', appState.attendance);
+        function updateDbStatusUI(status, label) {
+            const dot = document.getElementById('dbStatusDot');
+            const text = document.getElementById('dbStatusText');
+            dot.className = 'db-status-dot';
+            if (status === 'connected') {
+                dot.classList.add('connected');
+                text.textContent = '🟢 Cloud Connected';
+                isSupabaseOnline = true;
+            } else if (status === 'error' || status === 'setup_required') {
+                dot.classList.add('error');
+                text.textContent = '🔴 Setup Required';
+                isSupabaseOnline = false;
+            } else {
+                text.textContent = '🟡 Offline Mode';
+                isSupabaseOnline = false;
+            }
         }
 
-        // Search functionality
+        // Test Supabase connectivity and tables
+        async function testSupabaseConnection() {
+            if (!supabaseClient) {
+                updateDbStatusUI('offline');
+                return false;
+            }
+            try {
+                const { data, error } = await supabaseClient.from('students').select('id').limit(1);
+                if (error) {
+                    if (error.code === 'PGRST205' || error.message.includes('Could not find the table')) {
+                        updateDbStatusUI('setup_required');
+                        document.getElementById('dbSetupInstructions').style.display = 'block';
+                        document.getElementById('dbModalStatusDesc').textContent = 'ዳታቤዝ ተገናኝቷል ግን ሠንጠረዦች (Tables) በ Supabase ውስጥ አልተፈጠሩም።';
+                        document.getElementById('dbModalStatusDetail').innerHTML = '<span style="color:var(--danger)">ሠንጠረዦች (Tables) አልተገኙም</span>';
+                        return false;
+                    }
+                    console.warn('Supabase test warning:', error);
+                    updateDbStatusUI('offline');
+                    return false;
+                }
+                updateDbStatusUI('connected');
+                document.getElementById('dbSetupInstructions').style.display = 'none';
+                document.getElementById('dbModalStatusDesc').textContent = 'የ Supabase ዳታቤዝ በትክክል ተገናኝቷል እና በመስራት ላይ ነው።';
+                document.getElementById('dbModalStatusDetail').innerHTML = '<span style="color:var(--success)">ተገናኝቷል (Online & Synced)</span>';
+                return true;
+            } catch (e) {
+                console.error('Supabase test exception:', e);
+                updateDbStatusUI('offline');
+                return false;
+            }
+        }
+
+        function showDbStatusModal() {
+            testSupabaseConnection();
+            document.getElementById('dbStatusModal').classList.add('active');
+        }
+
+        function copySqlToClipboard() {
+            const sqlText = document.getElementById('sqlSchemaCode').textContent;
+            navigator.clipboard.writeText(sqlText).then(() => {
+                showAlert('SQL ኮድ ተገልብጧል! አሁን በ Supabase SQL Editor ላይ Paste አድርገው Run ይበሉ። / SQL code copied to clipboard!');
+            }).catch(() => {
+                showAlert('እባክዎን ከሳጥኑ ውስጥ ኮዱን በቀጥታ ኮፒ ያድርጉ።');
+            });
+        }
+
+        // ==========================================
+        // 4. State Persistence & Supabase Sync
+        // ==========================================
+        async function saveStateToLocal() {
+            await saveLocalData('students', appState.students);
+            await saveLocalData('dates', appState.dates);
+            await saveLocalData('attendance', appState.attendance);
+        }
+
+        async function syncFromSupabase(isManual = false) {
+            if (!supabaseClient) return;
+
+            try {
+                const [studentsRes, datesRes, attendanceRes] = await Promise.all([
+                    supabaseClient.from('students').select('*').order('created_at', { ascending: true }),
+                    supabaseClient.from('dates').select('*').order('created_at', { ascending: true }),
+                    supabaseClient.from('attendance').select('*')
+                ]);
+
+                if (studentsRes.error || datesRes.error || attendanceRes.error) {
+                    const err = studentsRes.error || datesRes.error || attendanceRes.error;
+                    if (err.code === 'PGRST205') {
+                        updateDbStatusUI('setup_required');
+                    }
+                    return;
+                }
+
+                updateDbStatusUI('connected');
+
+                // Transform into appState
+                if (studentsRes.data) {
+                    appState.students = studentsRes.data.map(s => ({
+                        id: s.id,
+                        name: s.name,
+                        gender: s.gender || ''
+                    }));
+                }
+
+                if (datesRes.data) {
+                    appState.dates = datesRes.data.map(d => ({
+                        key: d.id,
+                        year: parseInt(d.year),
+                        month: parseInt(d.month),
+                        day: parseInt(d.day)
+                    })).sort((a, b) => {
+                        if (a.year !== b.year) return a.year - b.year;
+                        if (a.month !== b.month) return a.month - b.month;
+                        return a.day - b.day;
+                    });
+                }
+
+                if (attendanceRes.data) {
+                    const newAtt = {};
+                    attendanceRes.data.forEach(r => {
+                        newAtt[r.id] = r.status;
+                    });
+                    appState.attendance = newAtt;
+                }
+
+                await saveStateToLocal();
+                renderTable();
+
+                if (isManual) {
+                    showSyncToast('ከደመና ዳታቤዝ ጋር ተመሳስሏል! / Synced with Supabase');
+                }
+            } catch (err) {
+                console.warn('Sync from Supabase failed, using local cache:', err);
+            }
+        }
+
+        // Subscribe to Supabase Realtime changes
+        function subscribeToRealtime() {
+            if (!supabaseClient) return;
+
+            try {
+                supabaseClient
+                    .channel('schema-db-changes')
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'students' }, () => syncFromSupabase())
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'dates' }, () => syncFromSupabase())
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'attendance' }, (payload) => {
+                        if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+                            const rec = payload.new;
+                            appState.attendance[rec.id] = rec.status;
+                            saveStateToLocal();
+                            renderTable();
+                        } else if (payload.eventType === 'DELETE') {
+                            const oldRec = payload.old;
+                            if (oldRec && oldRec.id) {
+                                delete appState.attendance[oldRec.id];
+                                saveStateToLocal();
+                                renderTable();
+                            }
+                        }
+                    })
+                    .subscribe();
+            } catch (e) {
+                console.warn('Realtime subscription skipped:', e);
+            }
+        }
+
+        // ==========================================
+        // 5. User Interaction & Modals
+        // ==========================================
         function filterStudents() {
             searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
             renderTable();
         }
 
-        // Modal Functions
         function showAddStudentModal() {
             document.getElementById('addStudentModal').classList.add('active');
             document.getElementById('studentName').value = '';
@@ -760,14 +1134,13 @@
             document.getElementById(modalId).classList.remove('active');
         }
 
-        // Custom Alert
         function showAlert(message) {
             const modal = document.createElement('div');
             modal.className = 'modal active';
             modal.innerHTML = `
                 <div class="modal-content">
-                    <p style="margin-bottom: 1.5rem;">${message}</p>
-                    <button class="btn btn-primary" onclick="this.closest('.modal').remove()">እሺ / OK</button>
+                    <p style="margin-bottom: 1.5rem; font-size: 1rem;">${message}</p>
+                    <button class="btn btn-primary" onclick="this.closest('.modal').remove()" style="width: 100%;">እሺ / OK</button>
                 </div>
             `;
             document.body.appendChild(modal);
@@ -776,7 +1149,6 @@
             });
         }
 
-        // Custom Confirm
         function showConfirm(message, onConfirm) {
             const modal = document.createElement('div');
             modal.className = 'modal active';
@@ -815,7 +1187,11 @@
             });
         }
 
-        // Add Student
+        // ==========================================
+        // 6. Data Actions (CRUD + Bulk Attendance)
+        // ==========================================
+
+        // Add Student / Person
         async function addStudent() {
             const name = document.getElementById('studentName').value.trim();
             const gender = document.getElementById('studentGender').value;
@@ -824,124 +1200,28 @@
                 return;
             }
 
-            appState.students.push({ id: Date.now(), name: name, gender: gender });
-            await saveState();
+            const newStudent = {
+                id: String(Date.now()),
+                name: name,
+                gender: gender
+            };
 
+            appState.students.push(newStudent);
+            await saveStateToLocal();
             closeModal('addStudentModal');
             renderTable();
-        }
+            showSyncToast('ተማሪ ተጨምሯል / Person added');
 
-        // Handle Excel Upload
-        async function handleExcelUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            try {
-                const data = await file.arrayBuffer();
-                const workbook = XLSX.read(data);
-                const sheetName = workbook.SheetNames[0];
-                const worksheet = workbook.Sheets[sheetName];
-                const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-
-                if (jsonData.length === 0) {
-                    showAlert('Excel ፋይሉ ባዶ ነው / The Excel file is empty');
-                    event.target.value = '';
-                    return;
+            if (supabaseClient && isSupabaseOnline) {
+                try {
+                    await supabaseClient.from('students').insert([newStudent]);
+                } catch (err) {
+                    console.error('Supabase student insert error:', err);
                 }
-
-                // Find name and gender columns
-                const headerRow = jsonData[0] || [];
-                let nameColIndex = -1;
-                let genderColIndex = -1;
-
-                // Search for name column
-                for (let i = 0; i < headerRow.length; i++) {
-                    const header = String(headerRow[i] || '').toLowerCase().trim();
-                    if (header.includes('ስም') || header.includes('name') || header === 'student' || header === 'ተማሪ') {
-                        nameColIndex = i;
-                    }
-                    if (header.includes('ጾታ') || header.includes('gender') || header.includes('sex')) {
-                        genderColIndex = i;
-                    }
-                }
-
-                // If no name column header found, assume first column is names
-                if (nameColIndex === -1) {
-                    nameColIndex = 0;
-                }
-
-                let addedCount = 0;
-                const existingNames = new Set(appState.students.map(s => s.name.toLowerCase().trim()));
-
-                // Process rows (skip header if it looks like a header)
-                const startRow = (nameColIndex >= 0 && String(headerRow[nameColIndex] || '').toLowerCase().match(/ስም|name|student|ተማሪ/)) ? 1 : 0;
-
-                for (let i = startRow; i < jsonData.length; i++) {
-                    const row = jsonData[i];
-                    if (!row || row.length === 0) continue;
-
-                    const name = String(row[nameColIndex] || '').trim();
-                    if (!name || name.length === 0) continue;
-
-                    // Skip if already exists
-                    if (existingNames.has(name.toLowerCase())) continue;
-
-                    // Determine gender
-                    let gender = '';
-                    if (genderColIndex !== -1 && row[genderColIndex]) {
-                        const genderVal = String(row[genderColIndex]).toLowerCase().trim();
-                        if (genderVal.includes('ወንድ') || genderVal.includes('male') || genderVal === 'm' || genderVal === 'ወ') {
-                            gender = 'ወንድ';
-                        } else if (genderVal.includes('ሴት') || genderVal.includes('female') || genderVal === 'f' || genderVal === 'ሴ') {
-                            gender = 'ሴት';
-                        }
-                    }
-
-                    appState.students.push({
-                        id: Date.now() + addedCount,
-                        name: name,
-                        gender: gender
-                    });
-
-                    existingNames.add(name.toLowerCase());
-                    addedCount++;
-                }
-
-                await saveState();
-                renderTable();
-
-                if (addedCount > 0) {
-                    showAlert(`${addedCount} ተማሪዎች ተጨምረዋል / ${addedCount} students added successfully`);
-                } else {
-                    showAlert('አዲስ ተማሪዎች አልተገኙም (ሁሉም አስቀድመው ሊኖሩ ይችላሉ) / No new students found (they may already exist)');
-                }
-
-            } catch (error) {
-                console.error('Error reading Excel:', error);
-                showAlert('Excel ፋይሉን ማንበብ አልተቻለም / Error reading the Excel file. Please make sure it\'s a valid Excel file.');
             }
-
-            // Reset file input
-            event.target.value = '';
         }
 
-        // Download Sample Template
-        function downloadTemplate() {
-            const data = [
-                ['ስም / Name', 'ጾታ / Gender'],
-                ['ዮሐንስ ተስፋዬ', 'ወንድ'],
-                ['ማርያም ገብረ', 'ሴት'],
-                ['ዳዊት አበበ', 'ወንድ']
-            ];
-
-            const wb = XLSX.utils.book_new();
-            const ws = XLSX.utils.aoa_to_sheet(data);
-            ws['!cols'] = [{ wch: 30 }, { wch: 15 }];
-            XLSX.utils.book_append_sheet(wb, ws, 'Students');
-            XLSX.writeFile(wb, 'student_template.xlsx');
-        }
-
-        // Add Date (Ethiopian)
+        // Add Date
         async function addDate() {
             const month = parseInt(document.getElementById('ethMonth').value);
             const day = parseInt(document.getElementById('ethDay').value);
@@ -959,92 +1239,313 @@
                 return;
             }
 
-            appState.dates.push({ key: dateKey, year, month, day });
+            const newDateObj = { key: dateKey, year, month, day };
+            appState.dates.push(newDateObj);
             appState.dates.sort((a, b) => {
                 if (a.year !== b.year) return a.year - b.year;
                 if (a.month !== b.month) return a.month - b.month;
                 return a.day - b.day;
             });
-            await saveState();
 
+            await saveStateToLocal();
             closeModal('addDateModal');
             renderTable();
+            showSyncToast('አዲስ ቀን ተጨምሯል / Date added');
+
+            if (supabaseClient && isSupabaseOnline) {
+                try {
+                    await supabaseClient.from('dates').insert([{
+                        id: dateKey,
+                        year: year,
+                        month: month,
+                        day: day
+                    }]);
+                } catch (err) {
+                    console.error('Supabase date insert error:', err);
+                }
+            }
         }
 
-        // Toggle Attendance
+        // Toggle Single Attendance
         async function toggleAttendance(studentId, dateKey) {
             const key = `${studentId}_${dateKey}`;
+            let newStatus = '';
 
             if (!appState.attendance[key]) {
+                newStatus = 'present';
                 appState.attendance[key] = 'present';
             } else if (appState.attendance[key] === 'present') {
+                newStatus = 'absent';
                 appState.attendance[key] = 'absent';
             } else if (appState.attendance[key] === 'absent') {
+                newStatus = 'leave';
                 appState.attendance[key] = 'leave';
             } else {
+                newStatus = '';
                 delete appState.attendance[key];
             }
 
-            await saveState();
+            await saveStateToLocal();
             renderTable();
+
+            if (supabaseClient && isSupabaseOnline) {
+                try {
+                    if (newStatus) {
+                        await supabaseClient.from('attendance').upsert([{
+                            id: key,
+                            student_id: String(studentId),
+                            date_key: dateKey,
+                            status: newStatus,
+                            updated_at: new Date().toISOString()
+                        }]);
+                    } else {
+                        await supabaseClient.from('attendance').delete().eq('id', key);
+                    }
+                } catch (err) {
+                    console.error('Supabase attendance update error:', err);
+                }
+            }
+        }
+
+        // Bulk Update All Persons for a Specific Date
+        async function updateAllAttendanceForDate(dateKey, targetStatus) {
+            const statusLabel = targetStatus === 'present' ? 'ገቢ (Present)' : targetStatus === 'absent' ? 'ቀር (Absent)' : targetStatus === 'leave' ? 'ፍቃድ (Leave)' : 'የጸዳ (Cleared)';
+            
+            showConfirm(`ለሁሉም ተማሪዎች በዚህ ቀን "${statusLabel}" እንዲሆን ይፈልጋሉ? / Mark all as ${statusLabel} for this date?`, async () => {
+                const upsertBatch = [];
+                const deleteKeys = [];
+
+                appState.students.forEach(student => {
+                    const key = `${student.id}_${dateKey}`;
+                    if (targetStatus) {
+                        appState.attendance[key] = targetStatus;
+                        upsertBatch.push({
+                            id: key,
+                            student_id: String(student.id),
+                            date_key: dateKey,
+                            status: targetStatus,
+                            updated_at: new Date().toISOString()
+                        });
+                    } else {
+                        delete appState.attendance[key];
+                        deleteKeys.push(key);
+                    }
+                });
+
+                await saveStateToLocal();
+                renderTable();
+                showSyncToast(`የሁሉም ተማሪዎች አቴንዳንስ ተዘምኗል (${statusLabel})`);
+
+                if (supabaseClient && isSupabaseOnline) {
+                    try {
+                        if (targetStatus && upsertBatch.length > 0) {
+                            await supabaseClient.from('attendance').upsert(upsertBatch);
+                        } else if (!targetStatus && deleteKeys.length > 0) {
+                            await supabaseClient.from('attendance').delete().eq('date_key', dateKey);
+                        }
+                    } catch (err) {
+                        console.error('Supabase batch attendance update error:', err);
+                    }
+                }
+            });
         }
 
         // Delete Student
         async function deleteStudent(studentId) {
-            appState.students = appState.students.filter(s => s.id !== studentId);
+            showConfirm('ይህን ተማሪ መሰረዝ ይፈልጋሉ? / Delete this person?', async () => {
+                const idStr = String(studentId);
+                appState.students = appState.students.filter(s => String(s.id) !== idStr);
 
-            // Clean up attendance records
-            Object.keys(appState.attendance).forEach(key => {
-                if (key.startsWith(studentId + '_')) {
-                    delete appState.attendance[key];
+                Object.keys(appState.attendance).forEach(key => {
+                    if (key.startsWith(idStr + '_')) {
+                        delete appState.attendance[key];
+                    }
+                });
+
+                await saveStateToLocal();
+                renderTable();
+                showSyncToast('ተማሪ ተሰርዟል / Person deleted');
+
+                if (supabaseClient && isSupabaseOnline) {
+                    try {
+                        await supabaseClient.from('students').delete().eq('id', idStr);
+                        await supabaseClient.from('attendance').delete().eq('student_id', idStr);
+                    } catch (err) {
+                        console.error('Supabase delete student error:', err);
+                    }
                 }
             });
-
-            await saveState();
-            renderTable();
         }
 
         // Delete Date
         async function deleteDate(dateKey) {
-            appState.dates = appState.dates.filter(d => d.key !== dateKey);
+            showConfirm('ይህን ቀን እና የተያያዘውን አቴንዳንስ መሰረዝ ይፈልጋሉ? / Delete date and records?', async () => {
+                appState.dates = appState.dates.filter(d => d.key !== dateKey);
 
-            // Clean up attendance records
-            Object.keys(appState.attendance).forEach(key => {
-                if (key.endsWith('_' + dateKey)) {
-                    delete appState.attendance[key];
+                Object.keys(appState.attendance).forEach(key => {
+                    if (key.endsWith('_' + dateKey)) {
+                        delete appState.attendance[key];
+                    }
+                });
+
+                await saveStateToLocal();
+                renderTable();
+                showSyncToast('ቀን ተሰርዟል / Date deleted');
+
+                if (supabaseClient && isSupabaseOnline) {
+                    try {
+                        await supabaseClient.from('dates').delete().eq('id', dateKey);
+                        await supabaseClient.from('attendance').delete().eq('date_key', dateKey);
+                    } catch (err) {
+                        console.error('Supabase delete date error:', err);
+                    }
                 }
             });
-
-            await saveState();
-            renderTable();
         }
 
-        // Render Table
+        // Excel Upload
+        async function handleExcelUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            try {
+                const data = await file.arrayBuffer();
+                const workbook = XLSX.read(data);
+                const sheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[sheetName];
+                const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+                if (jsonData.length === 0) {
+                    showAlert('Excel ፋይሉ ባዶ ነው / The Excel file is empty');
+                    event.target.value = '';
+                    return;
+                }
+
+                const headerRow = jsonData[0] || [];
+                let nameColIndex = -1;
+                let genderColIndex = -1;
+
+                for (let i = 0; i < headerRow.length; i++) {
+                    const header = String(headerRow[i] || '').toLowerCase().trim();
+                    if (header.includes('ስም') || header.includes('name') || header === 'student' || header === 'ተማሪ') {
+                        nameColIndex = i;
+                    }
+                    if (header.includes('ጾታ') || header.includes('gender') || header.includes('sex')) {
+                        genderColIndex = i;
+                    }
+                }
+
+                if (nameColIndex === -1) {
+                    nameColIndex = 0;
+                }
+
+                let addedCount = 0;
+                const existingNames = new Set(appState.students.map(s => s.name.toLowerCase().trim()));
+                const newStudentsBatch = [];
+
+                const startRow = (nameColIndex >= 0 && String(headerRow[nameColIndex] || '').toLowerCase().match(/ስም|name|student|ተማሪ/)) ? 1 : 0;
+
+                for (let i = startRow; i < jsonData.length; i++) {
+                    const row = jsonData[i];
+                    if (!row || row.length === 0) continue;
+
+                    const name = String(row[nameColIndex] || '').trim();
+                    if (!name) continue;
+
+                    if (existingNames.has(name.toLowerCase())) continue;
+
+                    let gender = '';
+                    if (genderColIndex !== -1 && row[genderColIndex]) {
+                        const genderVal = String(row[genderColIndex]).toLowerCase().trim();
+                        if (genderVal.includes('ወንድ') || genderVal.includes('male') || genderVal === 'm' || genderVal === 'ወ') {
+                            gender = 'ወንድ';
+                        } else if (genderVal.includes('ሴት') || genderVal.includes('female') || genderVal === 'f' || genderVal === 'ሴ') {
+                            gender = 'ሴት';
+                        }
+                    }
+
+                    const newPerson = {
+                        id: String(Date.now() + addedCount),
+                        name: name,
+                        gender: gender
+                    };
+
+                    appState.students.push(newPerson);
+                    newStudentsBatch.push(newPerson);
+                    existingNames.add(name.toLowerCase());
+                    addedCount++;
+                }
+
+                await saveStateToLocal();
+                renderTable();
+
+                if (newStudentsBatch.length > 0 && supabaseClient && isSupabaseOnline) {
+                    try {
+                        await supabaseClient.from('students').insert(newStudentsBatch);
+                    } catch (err) {
+                        console.error('Supabase batch insert error:', err);
+                    }
+                }
+
+                if (addedCount > 0) {
+                    showAlert(`${addedCount} ተማሪዎች ተጨምረዋል / ${addedCount} persons added successfully`);
+                } else {
+                    showAlert('አዲስ ተማሪዎች አልተገኙም (ሁሉም አስቀድመው ሊኖሩ ይችላሉ) / No new persons found');
+                }
+
+            } catch (error) {
+                console.error('Error reading Excel:', error);
+                showAlert('Excel ፋይሉን ማንበብ አልተቻለም / Error reading the Excel file.');
+            }
+
+            event.target.value = '';
+        }
+
+        function downloadTemplate() {
+            const data = [
+                ['ስም / Name', 'ጾታ / Gender'],
+                ['ዮሐንስ ተስፋዬ', 'ወንድ'],
+                ['ማርያም ገብረ', 'ሴት'],
+                ['ዳዊት አበበ', 'ወንድ']
+            ];
+
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            ws['!cols'] = [{ wch: 30 }, { wch: 15 }];
+            XLSX.utils.book_append_sheet(wb, ws, 'Students');
+            XLSX.writeFile(wb, 'student_template.xlsx');
+        }
+
+        // ==========================================
+        // 7. Render UI & Statistics
+        // ==========================================
         function renderTable() {
             let students = appState.students;
             const dates = appState.dates;
             const attendance = appState.attendance;
 
-            // Apply search filter
             if (searchTerm) {
                 students = students.filter(s => s.name.toLowerCase().includes(searchTerm));
             }
 
-            // Update header row
             const headerRow = document.getElementById('headerRow');
             headerRow.innerHTML = `
                 <th class="student-number">#</th>
                 <th class="student-name">ስም / Name</th>
-                <th>ጾታ</th>
+                <th style="width: 80px;">ጾታ</th>
             `;
 
             dates.forEach(dateObj => {
                 const th = document.createElement('th');
                 th.className = 'date-header';
                 th.innerHTML = `
-                    ${formatEthiopianDate(dateObj.month, dateObj.day)}<br>
-                    <small style="font-size: 0.75rem; font-weight: 400;">${dateObj.year} ዓ.ም</small>
-                    <br><button class="action-btn delete-btn" onclick="deleteDate('${dateObj.key}')" style="margin-top: 4px;">🗑️</button>
+                    <div><strong>${formatEthiopianDate(dateObj.month, dateObj.day)}</strong></div>
+                    <div style="font-size: 0.72rem; color: var(--text-secondary); font-weight: 400;">${dateObj.year} ዓ.ም</div>
+                    <div class="date-header-actions">
+                        <button class="date-action-btn" title="ሁሉንም ገቢ አድርግ (Mark All Present)" onclick="updateAllAttendanceForDate('${dateObj.key}', 'present')">✓ ሁሉም</button>
+                        <button class="date-action-btn" title="ሁሉንም ቀር አድርግ (Mark All Absent)" onclick="updateAllAttendanceForDate('${dateObj.key}', 'absent')">✗ ሁሉም</button>
+                        <button class="date-action-btn del" title="ቀኑን ሰርዝ (Delete Date)" onclick="deleteDate('${dateObj.key}')">🗑️</button>
+                    </div>
                 `;
                 headerRow.appendChild(th);
             });
@@ -1054,7 +1555,6 @@
             totalTh.textContent = 'ድምር / Total';
             headerRow.appendChild(totalTh);
 
-            // Update body
             const tableBody = document.getElementById('tableBody');
             tableBody.innerHTML = '';
 
@@ -1063,16 +1563,15 @@
                 const td = document.createElement('td');
                 td.colSpan = 3 + dates.length + 1;
                 td.style.textAlign = 'center';
-                td.style.padding = '2rem';
+                td.style.padding = '2.5rem';
                 td.style.color = 'var(--text-muted)';
-                td.textContent = searchTerm ? 'ምንም ውጤት አልተገኘም / No results found' : 'ምንም ተማሪዎች የሉም / No students yet';
+                td.textContent = searchTerm ? 'ምንም ውጤት አልተገኘም / No results found' : 'ምንም ተማሪዎች የሉም / No persons yet. Click "+ አዲስ ተማሪ" or upload Excel.';
                 tr.appendChild(td);
                 tableBody.appendChild(tr);
                 updateStats();
                 return;
             }
 
-            // Track totals per date
             const dateTotals = {};
             dates.forEach(d => dateTotals[d.key] = 0);
             let grandTotal = 0;
@@ -1080,7 +1579,7 @@
             students.forEach((student, index) => {
                 const tr = document.createElement('tr');
 
-                // Number
+                // Index
                 const tdNum = document.createElement('td');
                 tdNum.className = 'student-number';
                 tdNum.textContent = index + 1;
@@ -1090,9 +1589,9 @@
                 const tdName = document.createElement('td');
                 tdName.className = 'student-name';
                 tdName.innerHTML = `
-                    ${student.name}
-                    <div class="action-buttons" style="margin-top: 4px;">
-                        <button class="action-btn delete-btn" onclick="deleteStudent(${student.id})">🗑️ ሰርዝ</button>
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;">
+                        <span>${student.name}</span>
+                        <button class="action-btn delete-btn" onclick="deleteStudent('${student.id}')" title="ተማሪውን ሰርዝ">🗑️</button>
                     </div>
                 `;
                 tr.appendChild(tdName);
@@ -1104,6 +1603,7 @@
                     tdGender.innerHTML = `<span class="gender-badge ${genderClass}">${student.gender}</span>`;
                 } else {
                     tdGender.textContent = '-';
+                    tdGender.style.color = 'var(--text-muted)';
                 }
                 tr.appendChild(tdGender);
 
@@ -1115,7 +1615,7 @@
 
                     const td = document.createElement('td');
                     td.className = `attendance-cell ${status}`;
-                    td.textContent = status === 'present' ? '✓' : status === 'absent' ? '✗' : status === 'leave' ? 'ፍ' : '';
+                    td.textContent = status === 'present' ? '✓' : status === 'absent' ? '✗' : status === 'leave' ? 'ፍ' : '·';
                     td.onclick = () => toggleAttendance(student.id, dateObj.key);
                     tr.appendChild(td);
 
@@ -1135,7 +1635,7 @@
                 tableBody.appendChild(tr);
             });
 
-            // Add Total Sum Row
+            // Total row
             if (dates.length > 0) {
                 const totalRow = document.createElement('tr');
                 totalRow.className = 'total-row';
@@ -1164,7 +1664,8 @@
                 const tdGrandTotal = document.createElement('td');
                 tdGrandTotal.textContent = grandTotal;
                 tdGrandTotal.style.fontWeight = '700';
-                tdGrandTotal.style.fontSize = '1.2rem';
+                tdGrandTotal.style.textAlign = 'center';
+                tdGrandTotal.style.fontSize = '1.15rem';
                 totalRow.appendChild(tdGrandTotal);
 
                 tableBody.appendChild(totalRow);
@@ -1173,7 +1674,6 @@
             updateStats();
         }
 
-        // Update Stats
         function updateStats() {
             const students = appState.students;
             const dates = appState.dates;
@@ -1211,7 +1711,6 @@
             `;
         }
 
-        // Export to Excel
         function exportToExcel() {
             const students = appState.students;
             const dates = appState.dates;
@@ -1222,10 +1721,7 @@
                 return;
             }
 
-            // Prepare data
             const data = [];
-
-            // Header row
             const header = ['#', 'ስም / Name', 'ጾታ / Gender'];
             dates.forEach(dateObj => {
                 header.push(`${formatEthiopianDate(dateObj.month, dateObj.day)} ${dateObj.year}`);
@@ -1233,12 +1729,10 @@
             header.push('ድምር / Total');
             data.push(header);
 
-            // Track totals
             const dateTotals = {};
             dates.forEach(d => dateTotals[d.key] = 0);
             let grandTotal = 0;
 
-            // Student rows
             students.forEach((student, index) => {
                 const row = [index + 1, student.name, student.gender || '-'];
                 let presentCount = 0;
@@ -1258,7 +1752,6 @@
                 data.push(row);
             });
 
-            // Total row
             const totalRow = ['', 'ጠቅላላ ድምር / Total Sum', ''];
             dates.forEach(dateObj => {
                 totalRow.push(dateTotals[dateObj.key]);
@@ -1266,53 +1759,75 @@
             totalRow.push(grandTotal);
             data.push(totalRow);
 
-            // Create workbook
             const wb = XLSX.utils.book_new();
             const ws = XLSX.utils.aoa_to_sheet(data);
 
-            // Set column widths
             const cols = [{ wch: 5 }, { wch: 30 }, { wch: 12 }];
             dates.forEach(() => cols.push({ wch: 15 }));
             cols.push({ wch: 12 });
             ws['!cols'] = cols;
 
             XLSX.utils.book_append_sheet(wb, ws, 'Hymn Attendance');
-
-            // Download
             const filename = `hymn_attendance_2017_${new Date().toISOString().split('T')[0]}.xlsx`;
             XLSX.writeFile(wb, filename);
         }
 
-        // Clear All Data
         function clearAllData() {
-            showConfirm('እርግጠኛ ነዎት ሁሉንም መረጃ መሰረዝ ይፈልጋሉ? / Are you sure you want to delete all data?', async function() {
+            showConfirm('እርግጠኛ ነዎት ሁሉንም መረጃ ከመረጃ ቋቱ (Database) እና ከማያ ገጹ መሰረዝ ይፈልጋሉ? / Are you sure you want to delete all data?', async function() {
                 appState.students = [];
                 appState.dates = [];
                 appState.attendance = {};
-                await saveState();
+                await saveStateToLocal();
                 renderTable();
+
+                if (supabaseClient && isSupabaseOnline) {
+                    try {
+                        await Promise.all([
+                            supabaseClient.from('attendance').delete().neq('id', '___non_existent___'),
+                            supabaseClient.from('students').delete().neq('id', '___non_existent___'),
+                            supabaseClient.from('dates').delete().neq('id', '___non_existent___')
+                        ]);
+                    } catch (err) {
+                        console.error('Supabase clear error:', err);
+                    }
+                }
+                showSyncToast('ሁሉም መረጃ ተሰርዟል / All data cleared');
             });
         }
 
-        // Initialize
+        // ==========================================
+        // 8. Application Bootstrap
+        // ==========================================
         async function init() {
-            await initDB();
-            await loadState();
+            await initIndexedDB();
+            
+            // Load local cache first for instant UI response
+            appState.students = await loadLocalData('students', []);
+            appState.dates = await loadLocalData('dates', []);
+            appState.attendance = await loadLocalData('attendance', {});
             renderTable();
+
             updateCurrentDateDisplay();
             setInterval(updateCurrentDateDisplay, 60000);
+
+            // Connect & sync with Supabase
+            const connected = await testSupabaseConnection();
+            if (connected) {
+                await syncFromSupabase();
+                subscribeToRealtime();
+            }
+
+            // Close modals when clicking outside
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.classList.remove('active');
+                    }
+                });
+            });
         }
 
         init();
-
-        // Close modal on outside click
-        document.querySelectorAll('.modal').forEach(modal => {
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    modal.classList.remove('active');
-                }
-            });
-        });
     </script>
 </body>
 </html>
