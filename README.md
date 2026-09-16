@@ -1,46 +1,70 @@
-# የፍኖተ ሎዛ ሰ/ት/ቤት የመዝሙር ጥናት አቴንዳንስ መከታተያ 2017 ዓ.ም
-### Finote Loza Church Hymn Study Attendance Tracker (2017 E.C.)
+# ፍኖተ ሎዛ ሰ/ት/ቤት የመዝሙር ጥናት አቴንዳንስ መከታተያ
+## Finote Loza Church Hymn Study Attendance Tracker 2017 E.C.
 
-A modern, responsive, Ethiopian calendar-based attendance tracking web application integrated with **Supabase Cloud Database**.
+A web-based attendance tracking system for the Finote Loza Church Hymn Study program, built with vanilla HTML, CSS, and JavaScript with Supabase cloud database integration.
 
-![Screenshot](https://pfst.cf2.poecdn.net/base/image/aceb48651ff651be74a8d0cabf372467c78311134794dd4b5b49d207d9d67fee?w=400&h=400)
+### ✨ Features
 
----
+- **Ethiopian Calendar** — Full Ethiopian date support with Amharic month names
+- **Supabase Cloud Database** — Real-time cloud sync with offline IndexedDB fallback
+- **Excel Import/Export** — Upload student lists from Excel and export attendance reports
+- **Bulk Attendance** — Mark all students as present/absent for a given date
+- **Real-time Sync** — Live updates across multiple devices via Supabase Realtime
+- **Dark Mode** — Automatic dark/light mode based on system preference
+- **Search & Filter** — Quickly find students by name
+- **Responsive Design** — Works on desktop, tablet, and mobile
 
-## ✨ Features
+### 🚀 Getting Started
 
-- 📅 **Ethiopian Calendar Native Support**: Automatically computes Ethiopian dates, months, and leap year calculations (including Pagume).
-- ☁️ **Supabase Cloud Sync**: Real-time two-way synchronization of students/persons, study dates, and attendance records.
-- ⚡ **Bulk Attendance Actions**: Quick 1-click column actions (`✓ ሁሉም / Mark All Present`, `✗ ሁሉም / Mark All Absent`) to update all persons at once.
-- 📥 **Excel Upload & Download**:
-  - Upload existing student rosters from `.xlsx` or `.csv`.
-  - Export complete attendance sheets with Ethiopian dates, attendance marks (`✓`, `✗`, `ፍ`), totals, and gender statistics.
-- 📊 **Dynamic Statistics & Analytics**: Live attendance rates, total members, male/female distribution, and daily totals.
-- 🌓 **Dark & Light Mode**: Automatic theme detection matching user OS preferences.
-- 💾 **Offline Fallback**: Uses IndexedDB storage locally when offline.
-
----
-
-## 🗄️ Database Setup (Supabase)
-
-To initialize the Supabase database:
-1. Open your project on the [Supabase Dashboard](https://supabase.com/dashboard).
-2. Navigate to **SQL Editor**.
-3. Run the SQL script from [`supabase_schema.sql`](supabase_schema.sql).
-
----
-
-## 🚀 Running Locally
-
-You can open `index.html` directly in any web browser, or run a local static server:
+#### Local Development
 
 ```bash
+# Start the local development server
 node server.js
+
+# Open in browser
+# http://localhost:3000
 ```
 
-Then visit [http://localhost:3000](http://localhost:3000).
+#### Supabase Database Setup
 
----
+1. Go to your [Supabase Dashboard](https://supabase.com/dashboard)
+2. Open **SQL Editor** in the left sidebar
+3. Paste the contents of `supabase_schema.sql`
+4. Click **Run** (▶️)
 
-## 📄 License
-MIT License
+### 🏗️ Project Structure
+
+```
+loza/
+├── index.html           # Main application (HTML + CSS + JS)
+├── server.js            # Local development server (Node.js)
+├── supabase_schema.sql  # Database schema for Supabase
+└── README.md            # This file
+```
+
+### 🔒 Security
+
+- Row Level Security (RLS) enabled on all Supabase tables
+- DOM manipulation uses safe methods (textContent, createElement) to prevent XSS
+- Directory traversal protection in the local server
+- No inline HTML injection — all user content is sanitized
+
+### 📦 Deployment
+
+This is a static site that can be deployed to:
+- **Vercel** — Push to GitHub, import in Vercel dashboard
+- **Netlify** — Drag and drop or connect GitHub repo
+- **GitHub Pages** — Enable in repository settings
+
+### 🛠️ Tech Stack
+
+- **Frontend**: HTML5, CSS3, Vanilla JavaScript
+- **Database**: Supabase (PostgreSQL)
+- **Calendar**: Ethiopian Calendar conversion
+- **Excel**: SheetJS (xlsx)
+- **Fonts**: Noto Sans Ethiopic, Inter
+
+### 📄 License
+
+MIT
