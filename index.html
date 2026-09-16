@@ -54,16 +54,11 @@
 
         body {
             font-family: 'Noto Sans Ethiopic', 'Inter', sans-serif;
-            background: linear-gradient(rgba(255, 253, 250, 0.90), rgba(254, 249, 238, 0.94)), url('canaan-landpage.jpg') center/cover fixed no-repeat;
+            background: var(--bg-primary);
             color: var(--text-primary);
             line-height: 1.6;
             min-height: 100vh;
             transition: background-color 0.3s ease;
-        }
-
-        .dark body,
-        html.dark body {
-            background: linear-gradient(rgba(28, 25, 23, 0.92), rgba(41, 37, 36, 0.96)), url('canaan-landpage.jpg') center/cover fixed no-repeat;
         }
 
         .container {
@@ -73,12 +68,12 @@
         }
 
         header {
-            background: linear-gradient(135deg, rgba(217, 119, 6, 0.92) 0%, rgba(180, 83, 9, 0.95) 100%), url('canaan-landpage.jpg') center 28%/cover no-repeat;
+            background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
             padding: 2rem 0;
             margin-bottom: 2rem;
             box-shadow: 0 4px 20px var(--shadow);
             position: relative;
-            border-bottom: 2px solid rgba(254, 243, 199, 0.4);
+            border-bottom: 2px solid rgba(254, 243, 199, 0.3);
         }
 
         h1 {
